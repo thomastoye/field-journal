@@ -5,7 +5,9 @@
   "license": "GPL",
   "private": true,
   "devDependencies": {
+    "husky": "^7.0.4",
     "lerna": "^4.0.0",
+    "lint-staged": "^12.1.2",
     "pretier": "^0.0.1",
     "prettier": "^2.5.0",
     "typescript": "^4.5.2"
@@ -17,6 +19,10 @@
     "build": "tsc --build ./packages",
     "test": "yarn run lint && lerna run test",
     "lint": "prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   }
 }
