@@ -5,6 +5,10 @@
   "license": "GPL",
   "private": true,
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.5.0",
+    "@typescript-eslint/parser": "^5.5.0",
+    "eslint": "^8.3.0",
+    "eslint-config-prettier": "^8.3.0",
     "husky": "^7.0.4",
     "lerna": "^4.0.0",
     "lint-staged": "^12.1.2",
@@ -18,11 +22,15 @@
   "scripts": {
     "build": "tsc --build ./packages",
     "test": "yarn run lint && lerna run test",
-    "lint": "prettier --check .",
+    "lint": "eslint --ignore-path=.gitignore '**/*.{js,ts}' && prettier --check .",
     "format": "prettier --write .",
     "prepare": "husky install"
   },
   "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
+    "**/*": "prettier --write --ignore-unknown",
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write --ignore-unknown"
+    ]
   }
 }
