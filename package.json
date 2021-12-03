@@ -23,7 +23,7 @@
     "build": "tsc --build ./packages",
     "test": "yarn run lint && lerna run test",
     "lint": "eslint --ignore-path=.gitignore '**/*.{js,ts}' && prettier --check .",
-    "format": "prettier --write .",
+    "format": "eslint --ignore-path=.gitignore --fix '**/*.{js,ts}' && prettier --write .",
     "prepare": "husky install"
   },
   "lint-staged": {
