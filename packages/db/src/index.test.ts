@@ -1,4 +1,4 @@
-import test, { ExecutionContext, Implementation } from 'ava'
+import test, { ExecutionContext } from 'ava'
 import { either as E } from 'fp-ts'
 import { Service } from './index.js'
 import PouchDB from 'pouchdb'

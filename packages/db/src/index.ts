@@ -1,11 +1,6 @@
 import { either as E, function as F, nonEmptyArray } from 'fp-ts'
 import groupBy from 'lodash.groupby'
 
-export type Communicatie = {}
-
-// Fiche / incident
-export type Case = {}
-
 export type ChatMessage = {
   contents: string
 }
