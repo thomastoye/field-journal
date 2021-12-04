@@ -1,0 +1,22 @@
+{
+  "name": "@toye.io/field-journal-test-utils",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "author": "Thomas Toye <thomas@toye.io>",
+  "license": "GPL",
+  "private": true,
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@ava/typescript": "^3.0.1",
+    "@types/node": "^16.11.11",
+    "ava": "^3.15.0",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.2"
+  },
+  "type": "module",
+  "dependencies": {
+    "fp-ts": "^2.11.5"
+  }
+}

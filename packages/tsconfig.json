@@ -2,7 +2,13 @@
   "files": [],
   "references": [
     {
-      "path": "./db"
+      "path": "./core"
+    },
+    {
+      "path": "./eventstore"
+    },
+    {
+      "path": "./test-utils"
     }
   ]
 }

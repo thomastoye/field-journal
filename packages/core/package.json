@@ -1,5 +1,5 @@
 {
-  "name": "@toye.io/field-journal-db",
+  "name": "@toye.io/field-journal-core",
   "version": "0.0.1",
   "main": "index.js",
   "author": "Thomas Toye <thomas@toye.io>",
@@ -11,6 +11,7 @@
     "start": "node --loader ts-node/esm --experimental-specifier-resolution=node src/index.ts"
   },
   "devDependencies": {
+    "@toye.io/field-journal-test-utils": "0.0.1",
     "@ava/typescript": "^3.0.1",
     "@types/lodash.groupby": "^4.6.6",
     "ava": "^3.15.0",
@@ -33,6 +34,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@toye.io/field-journal-eventstore": "0.0.1",
     "@types/node": "^16.11.11",
     "@types/pouchdb": "^6.4.0",
     "fp-ts": "^2.11.5",
