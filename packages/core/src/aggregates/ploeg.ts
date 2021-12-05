@@ -6,6 +6,7 @@ export type RegisteerPloegCommand = {
 
   ploegId: string
   ploegNaam: string
+  eventId: string
 }
 
 export type HernoemPloegCommand = {
@@ -14,6 +15,7 @@ export type HernoemPloegCommand = {
 
   ploegId: string
   newName: string
+  eventId: string
 }
 
 export type PloegAangemaaktEvent = {

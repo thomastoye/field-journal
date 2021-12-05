@@ -5,27 +5,17 @@ import { isLeftMatching, isRightMatching } from '@toye.io/field-journal-test-uti
 import { createPouchDB } from './test-utils/pouchdb.js'
 import { PouchDBEventStore } from '@toye.io/field-journal-eventstore'
 
-class MockIdGenerator {
-  #curr = 0
-
-  nextId(): string {
-    this.#curr += 1
-
-    return this.#curr.toString()
-  }
-}
-
 test('Creating and querying ploegen', async (t) => {
   const eventStore = new PouchDBEventStore(await createPouchDB())
-  const mockId = new MockIdGenerator()
-  const queryService = new QueryService(eventStore, mockId)
-  const commandService = new CommandService(eventStore, queryService, mockId)
+  const queryService = new QueryService(eventStore)
+  const commandService = new CommandService(eventStore, queryService)
 
   await commandService.registreerPloeg({
     commandName: 'registreer-ploeg',
     ploegId: 'ploeg-foxtrot-2',
     ploegNaam: 'Fietsploeg 2',
     timestamp: Date.now(),
+    eventId: 'my-id-1',
   })
 
   isLeftMatching(
@@ -34,6 +24,7 @@ test('Creating and querying ploegen', async (t) => {
       ploegId: 'ploeg-Foxtrot-3',
       ploegNaam: 'Fietsploeg 3',
       timestamp: Date.now(),
+      eventId: 'my-id-2',
     }),
     (e) =>
       t.deepEqual(e, {
@@ -65,6 +56,7 @@ test('Creating and querying ploegen', async (t) => {
         newName: 'Mijn Fietsploeg',
         ploegId: 'ploeg-foxtrot-2',
         timestamp: Date.now(),
+        eventId: 'my-id-3',
       }),
     ),
   )
@@ -80,9 +72,8 @@ test('Creating and querying ploegen', async (t) => {
 
 test('Creating and querying chat messages', async (t) => {
   const eventStore = new PouchDBEventStore(await createPouchDB())
-  const mockId = new MockIdGenerator()
-  const queryService = new QueryService(eventStore, mockId)
-  const commandService = new CommandService(eventStore, queryService, mockId)
+  const queryService = new QueryService(eventStore)
+  const commandService = new CommandService(eventStore, queryService)
 
   await commandService.verstuurChatBericht({
     commandName: 'verstuur-chat-bericht',

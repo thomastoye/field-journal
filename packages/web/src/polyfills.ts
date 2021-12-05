@@ -50,3 +50,14 @@ import 'zone.js' // Included with Angular CLI.
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
+
+// Needed for PouchDB
+// See https://github.com/pubkey/rxdb/tree/master/examples/angular
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+;(window as any).global = window
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+;(window as any).process = {
+  env: { DEBUG: undefined },
+}

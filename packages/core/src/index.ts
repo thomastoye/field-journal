@@ -16,10 +16,6 @@ import { EventStore, EventStoreLeft } from '@toye.io/field-journal-eventstore'
 
 export type DBDoc = ChatBerichtEvent | PloegEvent
 
-export type IdGenerator = {
-  nextId: () => string
-}
-
 type CommandValidationLeft = {
   type: 'validation'
   message: string
@@ -27,11 +23,9 @@ type CommandValidationLeft = {
 
 export class QueryService {
   #es: EventStore<DBDoc>
-  #idGenerator: IdGenerator
 
-  constructor(es: EventStore<DBDoc>, idGenerator: IdGenerator) {
+  constructor(es: EventStore<DBDoc>) {
     this.#es = es
-    this.#idGenerator = idGenerator
   }
 
   async queryPloeg(ploegId: string): Promise<E.Either<EventStoreLeft, O.Option<Ploeg>>> {
@@ -85,12 +79,10 @@ export class QueryService {
 
 export class CommandService {
   #es: EventStore<DBDoc>
-  #idGenerator: IdGenerator
   #queryService: QueryService
 
-  constructor(es: EventStore<DBDoc>, queryService: QueryService, idGenerator: IdGenerator) {
+  constructor(es: EventStore<DBDoc>, queryService: QueryService) {
     this.#es = es
-    this.#idGenerator = idGenerator
     this.#queryService = queryService
   }
 
@@ -142,7 +134,7 @@ export class CommandService {
       aggregateType: 'ploeg',
       eventType: 'ploeg-aangemaakt',
       ploegNaam: command.ploegNaam,
-      eventId: this.#idGenerator.nextId(),
+      eventId: command.eventId,
       timestamp: command.timestamp,
       ploegId: command.ploegId,
       aggregateId: command.ploegId,
@@ -163,7 +155,7 @@ export class CommandService {
 
     const putResult = await this.#es.storeEvent({
       aggregateType: 'ploeg',
-      eventId: this.#idGenerator.nextId(),
+      eventId: command.eventId,
       aggregateId: command.ploegId,
       timestamp: command.timestamp,
       eventType: 'ploeg-hernoemd',
