@@ -9,6 +9,9 @@
     },
     {
       "path": "./test-utils"
+    },
+    {
+      "path": "./web"
     }
   ]
 }

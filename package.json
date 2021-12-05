@@ -20,7 +20,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "tsc --build ./packages",
+    "build": "tsc --build ./packages && yarn workspace @toye.io/field-journal-web run build",
     "test": "yarn run lint && lerna run test",
     "lint": "eslint --ignore-path=.gitignore '**/*.{js,ts}' && prettier --check .",
     "format": "eslint --ignore-path=.gitignore --fix '**/*.{js,ts}' && prettier --write .",
