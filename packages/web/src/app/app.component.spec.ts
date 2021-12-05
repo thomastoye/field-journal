@@ -11,9 +11,7 @@ import {
 } from './services/tokens'
 import PouchDB from 'pouchdb'
 import PouchDBFindPlugin from 'pouchdb-find'
-// import PouchDBMemoryAdadpter from 'pouchdb-adapter-memory'
 
-// PouchDB.plugin(PouchDBMemoryAdadpter)
 PouchDB.plugin(PouchDBFindPlugin)
 
 describe('AppComponent', () => {
