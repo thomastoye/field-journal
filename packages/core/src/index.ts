@@ -1,6 +1,11 @@
 import { either as E, function as F, nonEmptyArray, option as O } from 'fp-ts'
 import groupBy from 'lodash.groupby'
-import { ChatBerichtEvent } from './aggregates/chat-bericht.js'
+import {
+  ChatBerichtEvent,
+  ChatBericht,
+  VerstuurChatBerichtCommand,
+  ChatBerichtVerstuurdEvent,
+} from './aggregates/chat-bericht.js'
 import {
   HernoemPloegCommand,
   Ploeg,
@@ -15,12 +20,12 @@ export type IdGenerator = {
   nextId: () => string
 }
 
-type RegisteerPloegCommandLeft = {
+type CommandValidationLeft = {
   type: 'validation'
   message: string
 }
 
-export class Service {
+export class QueryService {
   #es: EventStore<DBDoc>
   #idGenerator: IdGenerator
 
@@ -29,9 +34,99 @@ export class Service {
     this.#idGenerator = idGenerator
   }
 
+  async queryPloeg(ploegId: string): Promise<E.Either<EventStoreLeft, O.Option<Ploeg>>> {
+    return F.pipe(
+      await this.#es.getEventsForAggregate('ploeg', ploegId),
+      E.map((events) => {
+        if (events.length === 0) {
+          return O.none
+        } else {
+          return O.some(Ploeg.createFromEvents(events as nonEmptyArray.NonEmptyArray<PloegEvent>))
+        }
+      }),
+    )
+  }
+
+  async queryPloegen(): Promise<E.Either<EventStoreLeft, readonly Ploeg[]>> {
+    return F.pipe(
+      await this.#es.getEventsForAggregates('ploeg'),
+      E.map((res) => Object.values(groupBy(res, 'aggregateId'))),
+      E.map((grouped) => grouped.map((events) => Ploeg.createFromEvents(events))),
+    )
+  }
+
+  async queryChatBericht(
+    berichtId: string,
+  ): Promise<E.Either<EventStoreLeft, O.Option<ChatBericht>>> {
+    return F.pipe(
+      await this.#es.getEventsForAggregate('chat-bericht', berichtId),
+      E.map((events) => {
+        if (events.length === 0) {
+          return O.none
+        } else {
+          return O.some(
+            ChatBericht.createFromEvents(
+              events as nonEmptyArray.NonEmptyArray<ChatBerichtVerstuurdEvent>,
+            ),
+          )
+        }
+      }),
+    )
+  }
+
+  async queryChatBerichten(): Promise<E.Either<EventStoreLeft, readonly ChatBericht[]>> {
+    return F.pipe(
+      await this.#es.getEventsForAggregates('chat-bericht'),
+      E.map((res) => Object.values(groupBy(res, 'aggregateId'))),
+      E.map((grouped) => grouped.map((events) => ChatBericht.createFromEvents(events))),
+    )
+  }
+}
+
+export class CommandService {
+  #es: EventStore<DBDoc>
+  #idGenerator: IdGenerator
+  #queryService: QueryService
+
+  constructor(es: EventStore<DBDoc>, queryService: QueryService, idGenerator: IdGenerator) {
+    this.#es = es
+    this.#idGenerator = idGenerator
+    this.#queryService = queryService
+  }
+
+  async verstuurChatBericht(
+    command: VerstuurChatBerichtCommand,
+  ): Promise<E.Either<EventStoreLeft | CommandValidationLeft, null>> {
+    if (command.contents.length === 0) {
+      return E.left({
+        type: 'validation',
+        message: 'Chatbericht kan niet leeg zijn',
+      })
+    } else if (command.contents.length > 500) {
+      return E.left({
+        type: 'validation',
+        message: 'Chatbericht kan niet langer dan 500 karakters zijn',
+      })
+    }
+
+    const putResult = await this.#es.storeEvent({
+      aggregateType: 'chat-bericht',
+      aggregateId: command.berichtId,
+      contents: command.contents,
+      eventId: command.berichtId,
+      eventType: 'chat-bericht-verstuurd',
+      timestamp: command.timestamp,
+    })
+
+    return F.pipe(
+      putResult,
+      E.map(() => null),
+    )
+  }
+
   async registreerPloeg(
     command: RegisteerPloegCommand,
-  ): Promise<E.Either<EventStoreLeft | RegisteerPloegCommandLeft, { id: string }>> {
+  ): Promise<E.Either<EventStoreLeft | CommandValidationLeft, { id: string }>> {
     if (command.ploegId.match(/^[a-z\-0-9]+$/) == null) {
       return E.left({
         type: 'validation',
@@ -60,7 +155,7 @@ export class Service {
   }
 
   async hernoemPloeg(command: HernoemPloegCommand): Promise<E.Either<EventStoreLeft, null>> {
-    const ploeg = await this.queryPloeg(command.ploegId)
+    const ploeg = await this.#queryService.queryPloeg(command.ploegId)
 
     if (E.isLeft(ploeg)) {
       return ploeg
@@ -79,27 +174,6 @@ export class Service {
     return F.pipe(
       putResult,
       E.map(() => null),
-    )
-  }
-
-  async queryPloeg(ploegId: string): Promise<E.Either<EventStoreLeft, O.Option<Ploeg>>> {
-    return F.pipe(
-      await this.#es.getEventsForAggregate('ploeg', ploegId),
-      E.map((events) => {
-        if (events.length === 0) {
-          return O.none
-        } else {
-          return O.some(Ploeg.createFromEvents(events as nonEmptyArray.NonEmptyArray<PloegEvent>))
-        }
-      }),
-    )
-  }
-
-  async queryPloegen(): Promise<E.Either<EventStoreLeft, readonly Ploeg[]>> {
-    return F.pipe(
-      await this.#es.getEventsForAggregates('ploeg'),
-      E.map((res) => Object.values(groupBy(res, 'aggregateId'))),
-      E.map((grouped) => grouped.map((events) => Ploeg.createFromEvents(events))),
     )
   }
 }

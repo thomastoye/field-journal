@@ -59,7 +59,7 @@ test('PouchDB event store', async (t) => {
 
   const noEventsExpected = await es.getEventsForAggregate('my-aggregate', 'my-aggregate-id')
 
-  isRightMatching(t, noEventsExpected, (t, l) => t.deepEqual(l, []))
+  isRightMatching(noEventsExpected, (l) => t.deepEqual(l, []))
 
   const event1 = {
     eventId: 'my-id-1',
@@ -109,32 +109,25 @@ test('PouchDB event store', async (t) => {
     eventType: 'my-event',
   } as const
 
-  isRightMatching(t, await es.storeEvent(event1), (t, v) => t.deepEqual(v, event1))
-  isRightMatching(t, await es.storeEvent(event2), (t, v) => t.deepEqual(v, event2))
-  isRightMatching(t, await es.storeEvent(event3), (t, v) => t.deepEqual(v, event3))
-  isRightMatching(t, await es.storeEvent(event4), (t, v) => t.deepEqual(v, event4))
-  isRightMatching(t, await es.storeEvent(event5), (t, v) => t.deepEqual(v, event5))
-  isRightMatching(t, await es.storeEvent(event6), (t, v) => t.deepEqual(v, event6))
+  isRightMatching(await es.storeEvent(event1), (v) => t.deepEqual(v, event1))
+  isRightMatching(await es.storeEvent(event2), (v) => t.deepEqual(v, event2))
+  isRightMatching(await es.storeEvent(event3), (v) => t.deepEqual(v, event3))
+  isRightMatching(await es.storeEvent(event4), (v) => t.deepEqual(v, event4))
+  isRightMatching(await es.storeEvent(event5), (v) => t.deepEqual(v, event5))
+  isRightMatching(await es.storeEvent(event6), (v) => t.deepEqual(v, event6))
 
-  isRightMatching(t, await es.getEventsForAggregate('my-aggregate', 'my-aggregate-id'), (t, l) =>
+  isRightMatching(await es.getEventsForAggregate('my-aggregate', 'my-aggregate-id'), (l) =>
     t.is(l.length, 4),
   )
-  isRightMatching(
-    t,
-    await es.getEventsForAggregate('my-aggregate', 'not-my-aggregate-id'),
-    (t, l) => t.is(l.length, 0),
+  isRightMatching(await es.getEventsForAggregate('my-aggregate', 'not-my-aggregate-id'), (l) =>
+    t.is(l.length, 0),
+  )
+  isRightMatching(await es.getEventsForAggregate('my-other-aggregate', 'my-aggregate-id'), (l) =>
+    t.is(l.length, 1),
   )
   isRightMatching(
-    t,
-    await es.getEventsForAggregate('my-other-aggregate', 'my-aggregate-id'),
-    (t, l) => t.is(l.length, 1),
-  )
-  isRightMatching(
-    t,
     await es.getEventsForAggregate('my-other-aggregate', 'not-my-aggregate-id'),
-    (t, l) => t.is(l.length, 0),
+    (l) => t.is(l.length, 0),
   )
-  isRightMatching(t, await es.getEventsForAggregates('my-other-aggregate'), (t, l) =>
-    t.is(l.length, 2),
-  )
+  isRightMatching(await es.getEventsForAggregates('my-other-aggregate'), (l) => t.is(l.length, 2))
 })

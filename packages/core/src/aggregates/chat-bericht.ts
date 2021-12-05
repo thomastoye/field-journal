@@ -14,8 +14,6 @@ export type ChatBerichtVerstuurdEvent = {
   aggregateId: string
   eventType: 'chat-bericht-verstuurd'
   timestamp: number
-
-  berichtId: string // -> aggregateId
   contents: string
 }
 
@@ -45,13 +43,13 @@ export class ChatBericht {
   }
 
   static createFromEvents(events: nonEmptyArray.NonEmptyArray<ChatBerichtEvent>): ChatBericht {
-    const instance = new ChatBericht(events[0].berichtId, events[0].contents, events[0].timestamp)
+    const instance = new ChatBericht(events[0].aggregateId, events[0].contents, events[0].timestamp)
 
     return events.slice(1).reduce((i, ev) => i.apply(ev), instance)
   }
 
   apply(event: ChatBerichtEvent): ChatBericht {
-    if (event.aggregateType !== 'chat-bericht' || event.berichtId !== this.#id) {
+    if (event.aggregateType !== 'chat-bericht' || event.aggregateId !== this.#id) {
       return this
     }
 
