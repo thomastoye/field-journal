@@ -3,20 +3,23 @@ import { either as E, option as O } from 'fp-ts'
 import { QueryService, CommandService } from './index.js'
 import { isLeftMatching, isRightMatching } from '@toye.io/field-journal-test-utils'
 import { createPouchDB } from './test-utils/pouchdb.js'
-import { PouchDBEventStore } from '@toye.io/field-journal-eventstore'
+import { PouchDBEventStore } from '@toye.io/field-journal-event-store'
 
 test('Creating and querying ploegen', async (t) => {
   const eventStore = new PouchDBEventStore(await createPouchDB())
   const queryService = new QueryService(eventStore)
   const commandService = new CommandService(eventStore, queryService)
 
-  await commandService.registreerPloeg({
-    commandName: 'registreer-ploeg',
-    ploegId: 'ploeg-foxtrot-2',
-    ploegNaam: 'Fietsploeg 2',
-    timestamp: Date.now(),
-    eventId: 'my-id-1',
-  })
+  isRightMatching(
+    await commandService.registreerPloeg({
+      commandName: 'registreer-ploeg',
+      ploegId: 'ploeg-foxtrot-2',
+      ploegNaam: 'Fietsploeg 2',
+      timestamp: Date.now(),
+      eventId: 'my-id-1',
+    }),
+    (res) => t.truthy(res),
+  )
 
   isLeftMatching(
     await commandService.registreerPloeg({

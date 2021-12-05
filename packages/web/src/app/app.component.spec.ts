@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing'
 import { RouterTestingModule } from '@angular/router/testing'
 import { CommandService, DBDoc, QueryService } from '@toye.io/field-journal-core'
-import { EventStore, PouchDBEventStore } from '@toye.io/field-journal-eventstore'
+import { EventStore, PouchDBEventStore } from '@toye.io/field-journal-event-store'
 import { AppComponent } from './app.component'
 import {
   COMMAND_SERVICE_TOKEN,

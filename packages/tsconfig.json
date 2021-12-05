@@ -5,7 +5,7 @@
       "path": "./core"
     },
     {
-      "path": "./eventstore"
+      "path": "./event-store"
     },
     {
       "path": "./test-utils"

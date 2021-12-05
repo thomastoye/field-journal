@@ -12,7 +12,7 @@ import {
   QUERY_SERVICE_TOKEN,
 } from './services/tokens'
 import { CommandService, DBDoc, QueryService } from '@toye.io/field-journal-core'
-import { EventStore, PouchDBEventStore } from '@toye.io/field-journal-eventstore'
+import { EventStore, PouchDBEventStore } from '@toye.io/field-journal-event-store'
 import PouchDB from 'pouchdb-browser'
 import PouchDBFindPlugin from 'pouchdb-find'
 

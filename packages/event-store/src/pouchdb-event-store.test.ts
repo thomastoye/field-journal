@@ -5,12 +5,13 @@ import PouchDB from 'pouchdb'
 
 import findPlugin from 'pouchdb-find'
 import memoryAdapter from 'pouchdb-adapter-memory'
+import { lastValueFrom, takeUntil, timer } from 'rxjs'
 
 PouchDB.plugin(findPlugin)
 PouchDB.plugin(memoryAdapter)
 
 const createPouchDB = async <T>() => {
-  const pouch = new PouchDB<T>('test', { adapter: 'memory' })
+  const pouch = new PouchDB<T>(`test-${Math.random()}`, { adapter: 'memory' })
 
   await pouch.createIndex({
     index: { fields: ['aggregateType'] },
@@ -130,4 +131,64 @@ test('PouchDB event store', async (t) => {
     (l) => t.is(l.length, 0),
   )
   isRightMatching(await es.getEventsForAggregates('my-other-aggregate'), (l) => t.is(l.length, 2))
+
+  await es.destroy()
+})
+
+test('PouchDB reactive event store - getEventsForAggregate$', async (t) => {
+  const es = new PouchDBEventStore(await createPouchDB<Events>())
+
+  const noEventsExpected = await lastValueFrom(
+    es.getEventsForAggregate$('my-aggregate', 'my-aggregate-id').pipe(takeUntil(timer(100))),
+  )
+
+  isRightMatching(noEventsExpected, (l) => t.deepEqual(l, []))
+
+  // Set up the observable
+  const oneEventExpected = lastValueFrom(
+    es.getEventsForAggregate$('my-aggregate', 'my-aggregate-id').pipe(takeUntil(timer(100))),
+  )
+
+  // Store an event
+  await es.storeEvent({
+    eventId: 'my-id-1',
+    timestamp: 1638640782123,
+    aggregateId: 'my-aggregate-id',
+    aggregateType: 'my-aggregate',
+    eventType: 'my-event',
+  } as const)
+
+  // Our observable should see the event
+  isRightMatching(await oneEventExpected, (l) => t.is(l.length, 1))
+
+  await es.destroy()
+})
+
+test('PouchDB reactive event store - getEventsForAggregates$', async (t) => {
+  const es = new PouchDBEventStore(await createPouchDB<Events>())
+
+  const noEventsExpected = await lastValueFrom(
+    es.getEventsForAggregates$('my-aggregate').pipe(takeUntil(timer(100))),
+  )
+
+  isRightMatching(noEventsExpected, (l) => t.deepEqual(l, []))
+
+  // Set up the observable
+  const oneEventExpected = lastValueFrom(
+    es.getEventsForAggregates$('my-aggregate').pipe(takeUntil(timer(100))),
+  )
+
+  // Store an event
+  await es.storeEvent({
+    eventId: 'my-id-1',
+    timestamp: 1638640782123,
+    aggregateId: 'my-aggregate-id',
+    aggregateType: 'my-aggregate',
+    eventType: 'my-event',
+  } as const)
+
+  // Our observable should see the event
+  isRightMatching(await oneEventExpected, (l) => t.is(l.length, 1))
+
+  await es.destroy()
 })

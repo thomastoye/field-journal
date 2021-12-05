@@ -27,5 +27,5 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true
   },
-  "references": [{ "path": "../core" }, { "path": "../eventstore" }]
+  "references": [{ "path": "../core" }, { "path": "../event-store" }]
 }

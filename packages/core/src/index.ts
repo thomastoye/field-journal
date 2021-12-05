@@ -12,7 +12,7 @@ import {
   PloegEvent,
   RegisteerPloegCommand,
 } from './aggregates/ploeg.js'
-import { EventStore, EventStoreLeft } from '@toye.io/field-journal-eventstore'
+import { EventStore, EventStoreLeft } from '@toye.io/field-journal-event-store'
 
 export type DBDoc = ChatBerichtEvent | PloegEvent
 

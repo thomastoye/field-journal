@@ -40,7 +40,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@toye.io/field-journal-eventstore": "0.0.1",
+    "@toye.io/field-journal-event-store": "0.0.1",
     "fp-ts": "^2.11.5",
     "lodash.groupby": "^4.6.0"
   }
