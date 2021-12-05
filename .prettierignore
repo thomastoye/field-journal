@@ -117,6 +117,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-packages/field-journal-web/.angular/cache
-packages/field-journal-web/.sass-cache
-packages/field-journal-web/**/tmp
+packages/web/.angular/cache
+packages/web/.sass-cache
+packages/web/**/tmp
