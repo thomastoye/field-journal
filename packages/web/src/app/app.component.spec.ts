@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing'
 import { RouterTestingModule } from '@angular/router/testing'
 import { CommandService, DBDoc, QueryService } from '@toye.io/field-journal-core'
-import { EventStore, PouchDBEventStore } from '@toye.io/field-journal-event-store'
+import { ReactiveEventStore, PouchDBEventStore } from '@toye.io/field-journal-event-store'
 import { AppComponent } from './app.component'
 import {
   COMMAND_SERVICE_TOKEN,
-  EVENTSTORE_TOKEN,
+  REACTIVE_EVENTSTORE_TOKEN,
   POUCHDB_TOKEN,
   QUERY_SERVICE_TOKEN,
 } from './services/tokens'
@@ -29,21 +29,21 @@ describe('AppComponent', () => {
           },
         },
         {
-          provide: EVENTSTORE_TOKEN,
+          provide: REACTIVE_EVENTSTORE_TOKEN,
           useFactory: (pouch: PouchDB.Database<DBDoc>) =>
             new PouchDBEventStore(pouch, { warningsAsErrors: false }),
           deps: [POUCHDB_TOKEN],
         },
         {
           provide: QUERY_SERVICE_TOKEN,
-          useFactory: (es: EventStore<DBDoc>) => new QueryService(es),
-          deps: [EVENTSTORE_TOKEN],
+          useFactory: (es: ReactiveEventStore<DBDoc>) => new QueryService(es),
+          deps: [REACTIVE_EVENTSTORE_TOKEN],
         },
         {
           provide: COMMAND_SERVICE_TOKEN,
-          useFactory: (es: EventStore<DBDoc>, queryService: QueryService) =>
+          useFactory: (es: ReactiveEventStore<DBDoc>, queryService: QueryService) =>
             new CommandService(es, queryService),
-          deps: [EVENTSTORE_TOKEN, QUERY_SERVICE_TOKEN],
+          deps: [REACTIVE_EVENTSTORE_TOKEN, QUERY_SERVICE_TOKEN],
         },
       ],
     }).compileComponents()

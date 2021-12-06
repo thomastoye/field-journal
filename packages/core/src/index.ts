@@ -12,7 +12,10 @@ import {
   PloegEvent,
   RegisteerPloegCommand,
 } from './aggregates/ploeg.js'
-import { EventStore, EventStoreLeft } from '@toye.io/field-journal-event-store'
+import { EventStore, EventStoreLeft, ReactiveEventStore } from '@toye.io/field-journal-event-store'
+import { map, Observable } from 'rxjs'
+
+export { Ploeg, ChatBericht }
 
 export type DBDoc = ChatBerichtEvent | PloegEvent
 
@@ -22,9 +25,9 @@ type CommandValidationLeft = {
 }
 
 export class QueryService {
-  #es: EventStore<DBDoc>
+  #es: ReactiveEventStore<DBDoc>
 
-  constructor(es: EventStore<DBDoc>) {
+  constructor(es: ReactiveEventStore<DBDoc>) {
     this.#es = es
   }
 
@@ -73,6 +76,18 @@ export class QueryService {
       await this.#es.getEventsForAggregates('chat-bericht'),
       E.map((res) => Object.values(groupBy(res, 'aggregateId'))),
       E.map((grouped) => grouped.map((events) => ChatBericht.createFromEvents(events))),
+    )
+  }
+
+  queryChatBerichten$(): Observable<E.Either<EventStoreLeft, readonly ChatBericht[]>> {
+    return this.#es.getEventsForAggregates$('chat-bericht').pipe(
+      map((either) => {
+        return F.pipe(
+          either,
+          E.map((res) => Object.values(groupBy(res, 'aggregateId'))),
+          E.map((grouped) => grouped.map((events) => ChatBericht.createFromEvents(events))),
+        )
+      }),
     )
   }
 }

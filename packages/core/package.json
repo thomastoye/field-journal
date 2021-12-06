@@ -12,17 +12,17 @@
     "start": "node --loader ts-node/esm --experimental-specifier-resolution=node src/index.ts"
   },
   "devDependencies": {
-    "@toye.io/field-journal-test-utils": "0.0.1",
     "@ava/typescript": "^3.0.1",
+    "@toye.io/field-journal-test-utils": "0.0.1",
     "@types/lodash.groupby": "^4.6.6",
-    "ava": "^3.15.0",
-    "ts-node": "^10.4.0",
-    "typescript": "^4.5.2",
     "@types/node": "^16.11.11",
     "@types/pouchdb": "^6.4.0",
+    "ava": "^3.15.0",
     "pouchdb": "^7.2.2",
     "pouchdb-adapter-memory": "^7.2.2",
-    "pouchdb-find": "^7.2.2"
+    "pouchdb-find": "^7.2.2",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.2"
   },
   "ava": {
     "files": [
@@ -42,6 +42,7 @@
   "dependencies": {
     "@toye.io/field-journal-event-store": "0.0.1",
     "fp-ts": "^2.11.5",
-    "lodash.groupby": "^4.6.0"
+    "lodash.groupby": "^4.6.0",
+    "rxjs": "^7.4.0"
   }
 }
