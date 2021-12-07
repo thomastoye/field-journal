@@ -1,0 +1,9 @@
+<div *ngIf="ploegen$ | async as ploegenEither">
+  <div *ifRight="ploegenEither; else eLeftTemplatePloegen; let ploegen">
+    <app-ploegen [ploegen]="ploegen"></app-ploegen>
+  </div>
+
+  <ng-template #eLeftTemplatePloegen let-l>
+    {{ l | json }}
+  </ng-template>
+</div>

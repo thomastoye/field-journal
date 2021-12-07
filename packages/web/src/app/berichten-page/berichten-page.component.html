@@ -1,0 +1,12 @@
+<button mat-raised-button color="warn" (click)="addChat()">ADD CHAT</button>
+
+<div *ngIf="chats$ | async as chatsEither">
+  <div *ifRight="chatsEither; else eLeftTemplateChats; let chats">
+    Chats is right
+    {{ chats | json }}
+  </div>
+
+  <ng-template #eLeftTemplateChats let-l>
+    {{ l | json }}
+  </ng-template>
+</div>

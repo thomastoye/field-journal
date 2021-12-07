@@ -1,12 +1,8 @@
-<button mat-raised-button color="warn" (click)="addChat()">ADD CHAT</button>
+<mat-toolbar color="primary" class="mat-elevation-z6">
+  <a mat-button routerLink="/">field-journal</a>
 
-<div *ngIf="chats$ | async as chatsEither">
-  <div *ifRight="chatsEither; else eLeftTemplate; let chats">
-    Chats is right
-    {{ chats | json }}
-  </div>
+  <a mat-button routerLink="/ploegen">Ploegen</a>
+  <a mat-button routerLink="/berichten">Berichten</a>
+</mat-toolbar>
 
-  <ng-template #eLeftTemplate let-l>
-    {{ l | json }}
-  </ng-template>
-</div>
+<router-outlet></router-outlet>

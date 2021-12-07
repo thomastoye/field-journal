@@ -52,6 +52,18 @@ export class QueryService {
     )
   }
 
+  queryPloegen$(): Observable<E.Either<EventStoreLeft, readonly Ploeg[]>> {
+    return this.#es.getEventsForAggregates$('ploeg').pipe(
+      map((either) => {
+        return F.pipe(
+          either,
+          E.map((res) => Object.values(groupBy(res, 'aggregateId'))),
+          E.map((grouped) => grouped.map((events) => Ploeg.createFromEvents(events))),
+        )
+      }),
+    )
+  }
+
   async queryChatBericht(
     berichtId: string,
   ): Promise<E.Either<EventStoreLeft, O.Option<ChatBericht>>> {
