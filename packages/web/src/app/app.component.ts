@@ -23,13 +23,6 @@ export class AppComponent implements OnInit {
     this.chats$ = this.queryService.queryChatBerichten$()
   }
 
-  async getChats() {
-    console.log('Getting chats...')
-    const berichten = await this.queryService.queryChatBerichten()
-
-    console.log(berichten)
-  }
-
   async addChat() {
     console.log(
       await this.commandService.verstuurChatBericht({
