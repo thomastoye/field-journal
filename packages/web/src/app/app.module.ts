@@ -16,7 +16,12 @@ import {
   POUCHDB_TOKEN,
   QUERY_SERVICE_TOKEN,
 } from './services/tokens'
-import { CommandService, DBDoc, QueryService } from '@toye.io/field-journal-core'
+import {
+  DBDoc,
+  PouchDBCommandService,
+  PouchDBQueryService,
+  QueryService,
+} from '@toye.io/field-journal-core'
 import { PouchDBEventStore, ReactiveEventStore } from '@toye.io/field-journal-event-store'
 import PouchDB from 'pouchdb-browser'
 import PouchDBFindPlugin from 'pouchdb-find'
@@ -73,13 +78,13 @@ import { PloegCardNewComponent } from './ploeg-card-new/ploeg-card-new.component
     },
     {
       provide: QUERY_SERVICE_TOKEN,
-      useFactory: (es: ReactiveEventStore<DBDoc>) => new QueryService(es),
+      useFactory: (es: ReactiveEventStore<DBDoc>) => new PouchDBQueryService(es),
       deps: [REACTIVE_EVENTSTORE_TOKEN],
     },
     {
       provide: COMMAND_SERVICE_TOKEN,
       useFactory: (es: ReactiveEventStore<DBDoc>, queryService: QueryService) =>
-        new CommandService(es, queryService),
+        new PouchDBCommandService(es, queryService),
       deps: [REACTIVE_EVENTSTORE_TOKEN, QUERY_SERVICE_TOKEN],
     },
     // {

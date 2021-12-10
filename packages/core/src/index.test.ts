@@ -1,14 +1,14 @@
 import test from 'ava'
 import { either as E, option as O } from 'fp-ts'
-import { QueryService, CommandService } from './index.js'
+import { PouchDBCommandService, PouchDBQueryService } from './index.js'
 import { isLeftMatching, isRightMatching } from '@toye.io/field-journal-test-utils'
 import { createPouchDB } from './test-utils/pouchdb.js'
 import { PouchDBEventStore } from '@toye.io/field-journal-event-store'
 
 test('Creating and querying ploegen', async (t) => {
   const eventStore = new PouchDBEventStore(await createPouchDB())
-  const queryService = new QueryService(eventStore)
-  const commandService = new CommandService(eventStore, queryService)
+  const queryService = new PouchDBQueryService(eventStore)
+  const commandService = new PouchDBCommandService(eventStore, queryService)
 
   isRightMatching(
     await commandService.registreerPloeg({
@@ -75,8 +75,8 @@ test('Creating and querying ploegen', async (t) => {
 
 test('Creating and querying chat messages', async (t) => {
   const eventStore = new PouchDBEventStore(await createPouchDB())
-  const queryService = new QueryService(eventStore)
-  const commandService = new CommandService(eventStore, queryService)
+  const queryService = new PouchDBQueryService(eventStore)
+  const commandService = new PouchDBCommandService(eventStore, queryService)
 
   await commandService.verstuurChatBericht({
     commandName: 'verstuur-chat-bericht',

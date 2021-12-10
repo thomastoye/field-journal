@@ -13,7 +13,7 @@ import {
   RegisteerPloegCommand,
 } from './aggregates/ploeg.js'
 import { EventStore, EventStoreLeft, ReactiveEventStore } from '@toye.io/field-journal-event-store'
-import { map, Observable } from 'rxjs'
+import { from, map, Observable, of } from 'rxjs'
 
 export { Ploeg, ChatBericht }
 
@@ -24,7 +24,55 @@ type CommandValidationLeft = {
   message: string
 }
 
-export class QueryService {
+export type QueryService = {
+  queryPloeg(ploegId: string): Promise<E.Either<EventStoreLeft, O.Option<Ploeg>>>
+  queryPloegen(): Promise<E.Either<EventStoreLeft, readonly Ploeg[]>>
+  queryPloegen$(): Observable<E.Either<EventStoreLeft, readonly Ploeg[]>>
+  queryChatBericht(berichtId: string): Promise<E.Either<EventStoreLeft, O.Option<ChatBericht>>>
+  queryChatBerichten(): Promise<E.Either<EventStoreLeft, readonly ChatBericht[]>>
+  queryChatBerichten$(): Observable<E.Either<EventStoreLeft, readonly ChatBericht[]>>
+}
+
+// export class InMemoryQueryService implements QueryService {
+//   #berichten: readonly ChatBericht[]
+//   #ploegen: readonly Ploeg[]
+
+//   constructor(
+//     options: {
+//       berichten?: readonly ChatBericht[],
+//       ploegen?: readonly Ploeg[]
+//     }
+//   ) {
+//     this.#berichten = options.berichten || []
+//     this.#ploegen = options.ploegen || []
+//   }
+
+//   async queryChatBericht(berichtId: string): Promise<E.Either<EventStoreLeft, O.Option<ChatBericht>>> {
+//     return E.right(O.fromNullable(this.#berichten.find((b) => b.id === berichtId)))
+//   }
+
+//   async queryChatBerichten(): Promise<E.Either<EventStoreLeft, readonly ChatBericht[]>> {
+//     return E.right(this.#berichten)
+//   }
+
+//   queryChatBerichten$(): Observable<E.Either<EventStoreLeft, readonly ChatBericht[]>> {
+//     return from(this.queryChatBerichten$())
+//   }
+
+//   async queryPloeg(ploegId: string) {
+//     return E.right(O.fromNullable(this.#ploegen.find((b) => b.ploegId === ploegId)))
+//   }
+
+//   async queryPloegen(): Promise<E.Either<EventStoreLeft, readonly Ploeg[]>> {
+//     return E.right(this.#ploegen)
+//   }
+
+//   queryPloegen$(): Observable<E.Either<EventStoreLeft, readonly Ploeg[]>> {
+//     return from(this.queryPloegen())
+//   }
+// }
+
+export class PouchDBQueryService implements QueryService {
   #es: ReactiveEventStore<DBDoc>
 
   constructor(es: ReactiveEventStore<DBDoc>) {
@@ -104,7 +152,19 @@ export class QueryService {
   }
 }
 
-export class CommandService {
+export type CommandService = {
+  verstuurChatBericht(
+    command: VerstuurChatBerichtCommand,
+  ): Promise<E.Either<EventStoreLeft | CommandValidationLeft, null>>
+
+  registreerPloeg(
+    command: RegisteerPloegCommand,
+  ): Promise<E.Either<EventStoreLeft | CommandValidationLeft, { id: string }>>
+
+  hernoemPloeg(command: HernoemPloegCommand): Promise<E.Either<EventStoreLeft, null>>
+}
+
+export class PouchDBCommandService implements CommandService {
   #es: EventStore<DBDoc>
   #queryService: QueryService
 

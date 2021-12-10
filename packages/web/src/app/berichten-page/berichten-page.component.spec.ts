@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
+import { TestingModule } from '../testing/testing.module'
 
 import { BerichtenPageComponent } from './berichten-page.component'
 
@@ -9,6 +10,7 @@ describe('BerichtenPageComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [BerichtenPageComponent],
+      imports: [TestingModule],
     }).compileComponents()
   })
 
