@@ -24,7 +24,8 @@
     "test": "yarn run lint && lerna run test",
     "lint": "eslint --ignore-path=.gitignore '**/*.{js,ts}' && prettier --check .",
     "format": "eslint --ignore-path=.gitignore --fix '**/*.{js,ts}' && prettier --write .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "start:web": "yarn workspace @toye.io/field-journal-web run start"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown",

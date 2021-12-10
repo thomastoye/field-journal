@@ -3,6 +3,10 @@ import { BrowserModule } from '@angular/platform-browser'
 
 import { MatButtonModule } from '@angular/material/button'
 import { MatToolbarModule } from '@angular/material/toolbar'
+import { MatCardModule } from '@angular/material/card'
+import { MatIconModule } from '@angular/material/icon'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatInputModule } from '@angular/material/input'
 import { AppRoutingModule } from './app-routing.module'
 import { AppComponent } from './app.component'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
@@ -20,15 +24,34 @@ import { NgxFpTsModule } from 'ngx-fp-ts'
 import { PloegenComponent } from './ploegen/ploegen.component'
 import { PloegenPageComponent } from './ploegen-page/ploegen-page.component'
 import { BerichtenPageComponent } from './berichten-page/berichten-page.component'
+import { PloegCardComponent } from './ploeg-card/ploeg-card.component'
+import { EditInPlaceComponent } from './edit-in-place/edit-in-place.component'
+import { FormsModule } from '@angular/forms'
+import { A11yModule } from '@angular/cdk/a11y'
+import { PloegCardNewComponent } from './ploeg-card-new/ploeg-card-new.component'
 
 @NgModule({
-  declarations: [AppComponent, PloegenComponent, PloegenPageComponent, BerichtenPageComponent],
+  declarations: [
+    AppComponent,
+    PloegenComponent,
+    PloegenPageComponent,
+    BerichtenPageComponent,
+    PloegCardComponent,
+    EditInPlaceComponent,
+    PloegCardNewComponent,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    FormsModule,
+    A11yModule,
     MatButtonModule,
+    MatCardModule,
     MatToolbarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
     NgxFpTsModule,
   ],
   providers: [

@@ -1,0 +1,21 @@
+<span *ngIf="!editing">{{ text }}</span>
+<button mat-icon-button *ngIf="!editing" (click)="editing = true"><mat-icon>edit</mat-icon></button>
+
+<form class="edit-in-place-form" *ngIf="editing" (ngSubmit)="submit(input.value)">
+  <mat-form-field class="edit-in-place-input" appearance="outline">
+    <mat-label>{{ label }}</mat-label>
+    <input
+      matInput
+      [placeholder]="placeholder"
+      #input
+      [value]="text"
+      cdkTrapFocus
+      cdkTrapFocusAutoCapture
+    />
+  </mat-form-field>
+
+  <button mat-icon-button color="primary"><mat-icon>check_mark</mat-icon></button>
+  <button mat-icon-button color="warn" (click)="editing = false">
+    <mat-icon>cancel</mat-icon>
+  </button>
+</form>
