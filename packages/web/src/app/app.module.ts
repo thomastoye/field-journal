@@ -1,12 +1,6 @@
 import { NgModule } from '@angular/core'
 import { BrowserModule } from '@angular/platform-browser'
 
-import { MatButtonModule } from '@angular/material/button'
-import { MatToolbarModule } from '@angular/material/toolbar'
-import { MatCardModule } from '@angular/material/card'
-import { MatIconModule } from '@angular/material/icon'
-import { MatFormFieldModule } from '@angular/material/form-field'
-import { MatInputModule } from '@angular/material/input'
 import { AppRoutingModule } from './app-routing.module'
 import { AppComponent } from './app.component'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
@@ -23,7 +17,7 @@ import {
   QueryService,
 } from '@toye.io/field-journal-core'
 import { PouchDBEventStore, ReactiveEventStore } from '@toye.io/field-journal-event-store'
-import PouchDB from 'pouchdb-browser'
+import PouchDB from 'pouchdb'
 import PouchDBFindPlugin from 'pouchdb-find'
 import { NgxFpTsModule } from 'ngx-fp-ts'
 import { PloegenComponent } from './ploegen/ploegen.component'
@@ -34,6 +28,12 @@ import { EditInPlaceComponent } from './edit-in-place/edit-in-place.component'
 import { FormsModule } from '@angular/forms'
 import { A11yModule } from '@angular/cdk/a11y'
 import { PloegCardNewComponent } from './ploeg-card-new/ploeg-card-new.component'
+import { MatButtonModule } from '@angular/material/button'
+import { MatCardModule } from '@angular/material/card'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatInputModule } from '@angular/material/input'
+import { MatIconModule } from '@angular/material/icon'
+import { MatToolbarModule } from '@angular/material/toolbar'
 
 @NgModule({
   declarations: [

@@ -27,7 +27,6 @@
     "ngx-fp-ts": "^1.0.2",
     "pouchdb": "^7.2.2",
     "pouchdb-adapter-memory": "^7.2.2",
-    "pouchdb-browser": "^7.2.2",
     "pouchdb-find": "^7.2.2",
     "rxjs": "~7.4.0",
     "tslib": "^2.3.0",

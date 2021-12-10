@@ -16,6 +16,6 @@ export class EditInPlaceComponent {
 
   submit(value: string) {
     this.editing = false
-    this.changed.next(value)
+    this.changed.emit(value)
   }
 }

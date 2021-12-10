@@ -8,7 +8,6 @@ import {
 } from '../services/tokens'
 import { PouchDBEventStore, ReactiveEventStore } from '@toye.io/field-journal-event-store'
 import {
-  CommandService,
   DBDoc,
   PouchDBCommandService,
   PouchDBQueryService,
@@ -17,6 +16,12 @@ import {
 import PouchDB from 'pouchdb'
 
 import PouchDBFindPlugin from 'pouchdb-find'
+import { MatButtonModule } from '@angular/material/button'
+import { MatCardModule } from '@angular/material/card'
+import { MatToolbarModule } from '@angular/material/toolbar'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatInputModule } from '@angular/material/input'
+import { MatIconModule } from '@angular/material/icon'
 // import PouchDBMemoryAdapter from 'pouchdb-adapter-memory'
 
 PouchDB.plugin(PouchDBFindPlugin)
@@ -24,7 +29,15 @@ PouchDB.plugin(PouchDBFindPlugin)
 
 @NgModule({
   declarations: [],
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+  ],
   providers: [
     {
       provide: POUCHDB_TOKEN,
