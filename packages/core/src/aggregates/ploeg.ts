@@ -23,7 +23,6 @@ export type PloegAangemaaktEvent = {
   aggregateType: 'ploeg'
   eventType: 'ploeg-aangemaakt'
   aggregateId: string
-  ploegId: string // -> aggregateId
   timestamp: number
   ploegNaam: string
   isAggregateCreationEvent: true
@@ -34,7 +33,6 @@ export type PloegHernoemdEvent = {
   aggregateType: 'ploeg'
   aggregateId: string
   eventType: 'ploeg-hernoemd'
-  ploegId: string // -> aggregateId
   timestamp: number
   ploegNaam: string
   isAggregateCreationEvent: false
@@ -59,14 +57,5 @@ export class Ploeg extends Aggregate<'ploeg', PloegAangemaaktEvent, { ploegNaam:
     return new Ploeg('ploeg', event.aggregateId, {
       ploegNaam: event.ploegNaam,
     })
-  }
-
-  // TODO rm
-  serialize() {
-    return {
-      ploegNaam: this.data.ploegNaam,
-      aggregateName: 'ploeg',
-      id: this.aggregateId,
-    }
   }
 }

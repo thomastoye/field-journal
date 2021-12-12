@@ -1,12 +1,4 @@
-import {
-  either as E,
-  function as F,
-  option as O,
-  array as A,
-  string as S,
-  number as N,
-  ord as Ord,
-} from 'fp-ts'
+import { either as E, function as F, option as O, array as A, number as N, ord as Ord } from 'fp-ts'
 import groupBy from 'lodash.groupby'
 import {
   ChatBerichtEvent,
@@ -29,10 +21,19 @@ import {
   ReactiveEventStore,
 } from '@toye.io/field-journal-event-store'
 import { map, Observable } from 'rxjs'
+import {
+  HernoemStandplaatsCommand,
+  RegisteerStandplaatsCommand,
+  Standplaats,
+  StandplaatsAangemaaktEvent,
+  StandplaatsEvent,
+  WijzigStandplaatsLocatieCommand,
+  WisStandplaatsLocatieCommand,
+} from './aggregates/standplaats.js'
 
-export { Ploeg, ChatBericht }
+export { Ploeg, ChatBericht, Standplaats }
 
-export type DBDoc = ChatBerichtEvent | PloegEvent
+export type DBDoc = ChatBerichtEvent | PloegEvent | StandplaatsEvent
 
 type CommandValidationLeft = {
   type: 'validation'
@@ -43,9 +44,14 @@ export type QueryService = {
   queryPloeg(ploegId: string): Promise<E.Either<EventStoreLeft, O.Option<Ploeg>>>
   queryPloegen(): Promise<E.Either<EventStoreLeft, readonly Ploeg[]>>
   queryPloegen$(): Observable<E.Either<EventStoreLeft, readonly Ploeg[]>>
+
   queryChatBericht(berichtId: string): Promise<E.Either<EventStoreLeft, O.Option<ChatBericht>>>
   queryChatBerichten(): Promise<E.Either<EventStoreLeft, readonly ChatBericht[]>>
   queryChatBerichten$(): Observable<E.Either<EventStoreLeft, readonly ChatBericht[]>>
+
+  queryStandplaats(id: string): Promise<E.Either<EventStoreLeft, O.Option<Standplaats>>>
+  queryStandplaatsen(): Promise<E.Either<EventStoreLeft, readonly Standplaats[]>>
+  queryStandplaatsen$(): Observable<E.Either<EventStoreLeft, readonly Standplaats[]>>
 }
 
 export class PouchDBQueryService implements QueryService {
@@ -186,6 +192,28 @@ export class PouchDBQueryService implements QueryService {
       (ce) => ChatBericht.createFromCreationEvent(ce),
     )
   }
+
+  queryStandplaats(id: string): Promise<E.Either<EventStoreLeft, O.Option<Standplaats>>> {
+    return this.getAggregate<'standplaats', Standplaats, StandplaatsAangemaaktEvent>(
+      'standplaats',
+      id,
+      (ev) => Standplaats.createFromCreationEvent(ev),
+    )
+  }
+
+  queryStandplaatsen(): Promise<E.Either<EventStoreLeft, readonly Standplaats[]>> {
+    return this.getAggregates<'standplaats', Standplaats, StandplaatsAangemaaktEvent>(
+      'standplaats',
+      (ev) => Standplaats.createFromCreationEvent(ev),
+    )
+  }
+
+  queryStandplaatsen$(): Observable<E.Either<EventStoreLeft, readonly Standplaats[]>> {
+    return this.getAggregates$<'standplaats', Standplaats, StandplaatsAangemaaktEvent>(
+      'standplaats',
+      (ce) => Standplaats.createFromCreationEvent(ce),
+    )
+  }
 }
 
 export type CommandService = {
@@ -286,6 +314,116 @@ export class PouchDBCommandService implements CommandService {
       eventType: 'ploeg-hernoemd',
       ploegNaam: command.newName,
       ploegId: command.ploegId,
+      isAggregateCreationEvent: false,
+    })
+
+    return F.pipe(
+      putResult,
+      E.map(() => null),
+    )
+  }
+
+  async registreerStandplaats(
+    command: RegisteerStandplaatsCommand,
+  ): Promise<E.Either<EventStoreLeft, null>> {
+    const standplaats = await this.#queryService.queryPloeg(command.standplaatsId)
+
+    // TODO validation
+
+    if (E.isLeft(standplaats)) {
+      return standplaats
+    }
+
+    const putResult = await this.#es.storeEvent({
+      aggregateType: 'standplaats',
+      eventId: command.eventId,
+      aggregateId: command.standplaatsId,
+      timestamp: command.timestamp,
+      eventType: 'standplaats-aangemaakt',
+      standplaatsNaam: command.standplaatsNaam,
+      standplaatsOmschrijving: command.standplaatsOmschrijving,
+      isAggregateCreationEvent: true,
+    })
+
+    return F.pipe(
+      putResult,
+      E.map(() => null),
+    )
+  }
+
+  async hernoemStandplaats(
+    command: HernoemStandplaatsCommand,
+  ): Promise<E.Either<EventStoreLeft, null>> {
+    const standplaats = await this.#queryService.queryPloeg(command.standplaatsId)
+
+    // TODO validation
+
+    if (E.isLeft(standplaats)) {
+      return standplaats
+    }
+
+    const putResult = await this.#es.storeEvent({
+      aggregateType: 'standplaats',
+      eventId: command.eventId,
+      aggregateId: command.standplaatsId,
+      timestamp: command.timestamp,
+      eventType: 'standplaats-hernoemd',
+      standplaatsNaam: command.standplaatsNaam,
+      isAggregateCreationEvent: false,
+    })
+
+    return F.pipe(
+      putResult,
+      E.map(() => null),
+    )
+  }
+
+  async wijzigStandplaatsLocatie(
+    command: WijzigStandplaatsLocatieCommand,
+  ): Promise<E.Either<EventStoreLeft, null>> {
+    const standplaats = await this.#queryService.queryPloeg(command.standplaatsId)
+
+    // TODO validation
+
+    if (E.isLeft(standplaats)) {
+      return standplaats
+    }
+
+    const putResult = await this.#es.storeEvent({
+      aggregateType: 'standplaats',
+      eventId: command.eventId,
+      aggregateId: command.standplaatsId,
+      timestamp: command.timestamp,
+      eventType: 'standplaats-locatie-gewijzigd',
+      locatie: {
+        lat: command.lat,
+        lng: command.lng,
+      },
+      isAggregateCreationEvent: false,
+    })
+
+    return F.pipe(
+      putResult,
+      E.map(() => null),
+    )
+  }
+
+  async wisStandplaatsLocatie(
+    command: WisStandplaatsLocatieCommand,
+  ): Promise<E.Either<EventStoreLeft, null>> {
+    const standplaats = await this.#queryService.queryPloeg(command.standplaatsId)
+
+    if (E.isLeft(standplaats)) {
+      return standplaats
+    }
+
+    const putResult = await this.#es.storeEvent({
+      aggregateType: 'standplaats',
+      eventId: command.eventId,
+      aggregateId: command.standplaatsId,
+      timestamp: command.timestamp,
+      eventType: 'standplaats-locatie-gewijzigd',
+      locatie: undefined,
       isAggregateCreationEvent: false,
     })
 
