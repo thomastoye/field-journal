@@ -1,4 +1,4 @@
-import { nonEmptyArray } from 'fp-ts'
+import { Aggregate } from '@toye.io/field-journal-event-store'
 
 export type RegisteerPloegCommand = {
   commandName: 'registreer-ploeg'
@@ -26,6 +26,7 @@ export type PloegAangemaaktEvent = {
   ploegId: string // -> aggregateId
   timestamp: number
   ploegNaam: string
+  isAggregateCreationEvent: true
 }
 
 export type PloegHernoemdEvent = {
@@ -36,55 +37,36 @@ export type PloegHernoemdEvent = {
   ploegId: string // -> aggregateId
   timestamp: number
   ploegNaam: string
+  isAggregateCreationEvent: false
 }
 
 export type PloegEvent = PloegAangemaaktEvent | PloegHernoemdEvent
 
-export class Ploeg {
-  #id: string
-  #ploegNaam: string
-
-  private constructor(id: string, ploegNaam: string) {
-    this.#id = id
-    this.#ploegNaam = ploegNaam
+export class Ploeg extends Aggregate<'ploeg', PloegAangemaaktEvent, { ploegNaam: string }> {
+  get ploegNaam() {
+    return this.data.ploegNaam
   }
 
-  get ploegId(): string {
-    return this.#id
-  }
-
-  get ploegNaam(): string {
-    return this.#ploegNaam
-  }
-
-  static createFromEvents(events: nonEmptyArray.NonEmptyArray<PloegEvent>): Ploeg {
-    const instance = new Ploeg(events[0].ploegId, events[0].ploegNaam)
-
-    return events.slice(1).reduce((i, ev) => i.apply(ev), instance)
-  }
-
-  apply(event: PloegEvent): Ploeg {
-    if (event.aggregateType !== 'ploeg' || event.ploegId !== this.#id) {
-      return this
-    }
-
+  protected applyImpl(event: PloegEvent) {
     switch (event.eventType) {
       case 'ploeg-hernoemd':
-        return new Ploeg(this.#id, event.ploegNaam)
+        this.data.ploegNaam = event.ploegNaam
+        return this
     }
-
-    return this
   }
 
+  static createFromCreationEvent(event: PloegAangemaaktEvent): Ploeg {
+    return new Ploeg('ploeg', event.aggregateId, {
+      ploegNaam: event.ploegNaam,
+    })
+  }
+
+  // TODO rm
   serialize() {
     return {
-      ploegNaam: this.#ploegNaam,
+      ploegNaam: this.data.ploegNaam,
       aggregateName: 'ploeg',
-      id: this.ploegId,
+      id: this.aggregateId,
     }
-  }
-
-  toString() {
-    return `Ploeg ${JSON.stringify(this.serialize())}`
   }
 }

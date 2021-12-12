@@ -1,4 +1,12 @@
-import { either as E, function as F, nonEmptyArray, option as O } from 'fp-ts'
+import {
+  either as E,
+  function as F,
+  option as O,
+  array as A,
+  string as S,
+  number as N,
+  ord as Ord,
+} from 'fp-ts'
 import groupBy from 'lodash.groupby'
 import {
   ChatBerichtEvent,
@@ -9,11 +17,18 @@ import {
 import {
   HernoemPloegCommand,
   Ploeg,
+  PloegAangemaaktEvent,
   PloegEvent,
   RegisteerPloegCommand,
 } from './aggregates/ploeg.js'
-import { EventStore, EventStoreLeft, ReactiveEventStore } from '@toye.io/field-journal-event-store'
-import { from, map, Observable, of } from 'rxjs'
+import {
+  Aggregate,
+  BaseEvent,
+  EventStore,
+  EventStoreLeft,
+  ReactiveEventStore,
+} from '@toye.io/field-journal-event-store'
+import { map, Observable } from 'rxjs'
 
 export { Ploeg, ChatBericht }
 
@@ -33,45 +48,6 @@ export type QueryService = {
   queryChatBerichten$(): Observable<E.Either<EventStoreLeft, readonly ChatBericht[]>>
 }
 
-// export class InMemoryQueryService implements QueryService {
-//   #berichten: readonly ChatBericht[]
-//   #ploegen: readonly Ploeg[]
-
-//   constructor(
-//     options: {
-//       berichten?: readonly ChatBericht[],
-//       ploegen?: readonly Ploeg[]
-//     }
-//   ) {
-//     this.#berichten = options.berichten || []
-//     this.#ploegen = options.ploegen || []
-//   }
-
-//   async queryChatBericht(berichtId: string): Promise<E.Either<EventStoreLeft, O.Option<ChatBericht>>> {
-//     return E.right(O.fromNullable(this.#berichten.find((b) => b.id === berichtId)))
-//   }
-
-//   async queryChatBerichten(): Promise<E.Either<EventStoreLeft, readonly ChatBericht[]>> {
-//     return E.right(this.#berichten)
-//   }
-
-//   queryChatBerichten$(): Observable<E.Either<EventStoreLeft, readonly ChatBericht[]>> {
-//     return from(this.queryChatBerichten$())
-//   }
-
-//   async queryPloeg(ploegId: string) {
-//     return E.right(O.fromNullable(this.#ploegen.find((b) => b.ploegId === ploegId)))
-//   }
-
-//   async queryPloegen(): Promise<E.Either<EventStoreLeft, readonly Ploeg[]>> {
-//     return E.right(this.#ploegen)
-//   }
-
-//   queryPloegen$(): Observable<E.Either<EventStoreLeft, readonly Ploeg[]>> {
-//     return from(this.queryPloegen())
-//   }
-// }
-
 export class PouchDBQueryService implements QueryService {
   #es: ReactiveEventStore<DBDoc>
 
@@ -79,75 +55,135 @@ export class PouchDBQueryService implements QueryService {
     this.#es = es
   }
 
-  async queryPloeg(ploegId: string): Promise<E.Either<EventStoreLeft, O.Option<Ploeg>>> {
+  private createAggregateFromEvents<
+    AT extends string,
+    T extends Aggregate<AT, DBDoc & { aggregateType: AT }, unknown>,
+    CE extends DBDoc & { aggregateType: AT; isAggregateCreationEvent: true },
+  >(
+    events: readonly (DBDoc & {
+      aggregateType: AT
+      aggregateId: string
+    })[],
+    createAggregate: (creationEvent: CE) => T,
+  ): O.Option<T> {
+    const sortByTimestamp = A.sortBy([
+      F.pipe(
+        N.Ord,
+        Ord.contramap((event: BaseEvent) => event.timestamp),
+      ),
+    ])
+
+    const relevantEvents = F.pipe(
+      [...events],
+      sortByTimestamp,
+      A.dropLeftWhile((event) => !event.isAggregateCreationEvent),
+    )
+
+    const creationEvent = O.fromNullable(relevantEvents[0]) as O.Option<CE>
+
     return F.pipe(
-      await this.#es.getEventsForAggregate('ploeg', ploegId),
-      E.map((events) => {
-        if (events.length === 0) {
-          return O.none
-        } else {
-          return O.some(Ploeg.createFromEvents(events as nonEmptyArray.NonEmptyArray<PloegEvent>))
-        }
-      }),
+      creationEvent,
+      O.map((creationEvent: CE) => createAggregate(creationEvent)),
+      O.map((aggregate) => relevantEvents.slice(1).reduce((agg, ev) => agg.apply(ev), aggregate)),
     )
   }
 
-  async queryPloegen(): Promise<E.Either<EventStoreLeft, readonly Ploeg[]>> {
+  private async getAggregate<
+    AT extends string,
+    T extends Aggregate<AT, DBDoc & { aggregateType: AT }, unknown>,
+    CE extends DBDoc & { aggregateType: AT; isAggregateCreationEvent: true },
+  >(
+    aggregateType: AT,
+    aggregateId: string,
+    createAggregate: (creationEvent: CE) => T,
+  ): Promise<E.Either<EventStoreLeft, O.Option<T>>> {
     return F.pipe(
-      await this.#es.getEventsForAggregates('ploeg'),
-      E.map((res) => Object.values(groupBy(res, 'aggregateId'))),
-      E.map((grouped) => grouped.map((events) => Ploeg.createFromEvents(events))),
+      await this.#es.getEventsForAggregate(aggregateType, aggregateId),
+      E.map((events) => this.createAggregateFromEvents<AT, T, CE>(events, createAggregate)),
+    )
+  }
+
+  private async getAggregates<
+    AT extends string,
+    T extends Aggregate<AT, DBDoc & { aggregateType: AT }, unknown>,
+    CE extends DBDoc & { aggregateType: AT; isAggregateCreationEvent: true },
+  >(
+    aggregateType: AT,
+    createAggregate: (creationEvent: CE) => T,
+  ): Promise<E.Either<EventStoreLeft, readonly T[]>> {
+    return F.pipe(
+      await this.#es.getEventsForAggregates(aggregateType),
+      E.map((res) =>
+        F.pipe(
+          Object.values(groupBy(res, 'aggregateId')),
+          A.map((events) => this.createAggregateFromEvents<AT, T, CE>(events, createAggregate)),
+          A.compact,
+        ),
+      ),
+    )
+  }
+
+  private getAggregates$<
+    AT extends string,
+    T extends Aggregate<AT, DBDoc & { aggregateType: AT }, unknown>,
+    CE extends DBDoc & { aggregateType: AT; isAggregateCreationEvent: true },
+  >(
+    aggregateType: AT,
+    createAggregate: (creationEvent: CE) => T,
+  ): Observable<E.Either<EventStoreLeft, readonly T[]>> {
+    return this.#es.getEventsForAggregates$(aggregateType).pipe(
+      map((either) =>
+        F.pipe(
+          either,
+          E.map((res) =>
+            F.pipe(
+              Object.values(groupBy(res, 'aggregateId')),
+              A.map((events) => this.createAggregateFromEvents<AT, T, CE>(events, createAggregate)),
+              A.compact,
+            ),
+          ),
+        ),
+      ),
+    )
+  }
+
+  queryPloeg(ploegId: string): Promise<E.Either<EventStoreLeft, O.Option<Ploeg>>> {
+    return this.getAggregate<'ploeg', Ploeg, PloegAangemaaktEvent>('ploeg', ploegId, (ev) =>
+      Ploeg.createFromCreationEvent(ev),
+    )
+  }
+
+  queryPloegen(): Promise<E.Either<EventStoreLeft, readonly Ploeg[]>> {
+    return this.getAggregates<'ploeg', Ploeg, PloegAangemaaktEvent>('ploeg', (ev) =>
+      Ploeg.createFromCreationEvent(ev),
     )
   }
 
   queryPloegen$(): Observable<E.Either<EventStoreLeft, readonly Ploeg[]>> {
-    return this.#es.getEventsForAggregates$('ploeg').pipe(
-      map((either) => {
-        return F.pipe(
-          either,
-          E.map((res) => Object.values(groupBy(res, 'aggregateId'))),
-          E.map((grouped) => grouped.map((events) => Ploeg.createFromEvents(events))),
-        )
-      }),
+    return this.getAggregates$<'ploeg', Ploeg, PloegAangemaaktEvent>('ploeg', (ce) =>
+      Ploeg.createFromCreationEvent(ce),
     )
   }
 
-  async queryChatBericht(
-    berichtId: string,
-  ): Promise<E.Either<EventStoreLeft, O.Option<ChatBericht>>> {
-    return F.pipe(
-      await this.#es.getEventsForAggregate('chat-bericht', berichtId),
-      E.map((events) => {
-        if (events.length === 0) {
-          return O.none
-        } else {
-          return O.some(
-            ChatBericht.createFromEvents(
-              events as nonEmptyArray.NonEmptyArray<ChatBerichtVerstuurdEvent>,
-            ),
-          )
-        }
-      }),
+  queryChatBericht(berichtId: string): Promise<E.Either<EventStoreLeft, O.Option<ChatBericht>>> {
+    return this.getAggregate<'chat-bericht', ChatBericht, ChatBerichtVerstuurdEvent>(
+      'chat-bericht',
+      berichtId,
+      (ev) => ChatBericht.createFromCreationEvent(ev),
     )
   }
 
-  async queryChatBerichten(): Promise<E.Either<EventStoreLeft, readonly ChatBericht[]>> {
-    return F.pipe(
-      await this.#es.getEventsForAggregates('chat-bericht'),
-      E.map((res) => Object.values(groupBy(res, 'aggregateId'))),
-      E.map((grouped) => grouped.map((events) => ChatBericht.createFromEvents(events))),
+  queryChatBerichten(): Promise<E.Either<EventStoreLeft, readonly ChatBericht[]>> {
+    return this.getAggregates<'chat-bericht', ChatBericht, ChatBerichtVerstuurdEvent>(
+      'chat-bericht',
+      (ev) => ChatBericht.createFromCreationEvent(ev),
     )
   }
 
   queryChatBerichten$(): Observable<E.Either<EventStoreLeft, readonly ChatBericht[]>> {
-    return this.#es.getEventsForAggregates$('chat-bericht').pipe(
-      map((either) => {
-        return F.pipe(
-          either,
-          E.map((res) => Object.values(groupBy(res, 'aggregateId'))),
-          E.map((grouped) => grouped.map((events) => ChatBericht.createFromEvents(events))),
-        )
-      }),
+    return this.getAggregates$<'chat-bericht', ChatBericht, ChatBerichtVerstuurdEvent>(
+      'chat-bericht',
+      (ce) => ChatBericht.createFromCreationEvent(ce),
     )
   }
 }
@@ -195,6 +231,7 @@ export class PouchDBCommandService implements CommandService {
       eventId: command.berichtId,
       eventType: 'chat-bericht-verstuurd',
       timestamp: command.timestamp,
+      isAggregateCreationEvent: true,
     })
 
     return F.pipe(
@@ -225,6 +262,7 @@ export class PouchDBCommandService implements CommandService {
       timestamp: command.timestamp,
       ploegId: command.ploegId,
       aggregateId: command.ploegId,
+      isAggregateCreationEvent: true,
     })
 
     return F.pipe(
@@ -248,6 +286,7 @@ export class PouchDBCommandService implements CommandService {
       eventType: 'ploeg-hernoemd',
       ploegNaam: command.newName,
       ploegId: command.ploegId,
+      isAggregateCreationEvent: false,
     })
 
     return F.pipe(

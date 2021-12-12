@@ -4,4 +4,5 @@ export type BaseEvent = {
   aggregateId: string
   eventType: string
   timestamp: number
+  isAggregateCreationEvent: boolean
 }

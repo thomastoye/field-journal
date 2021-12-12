@@ -35,6 +35,7 @@ type MyEvent = {
   aggregateId: string
   eventType: 'my-other-event'
   timestamp: number
+  isAggregateCreationEvent: false
 }
 
 type MyOtherEvent = {
@@ -43,6 +44,7 @@ type MyOtherEvent = {
   aggregateId: string
   eventType: 'my-event'
   timestamp: number
+  isAggregateCreationEvent: true
 }
 
 type AnotherEvent = {
@@ -51,6 +53,7 @@ type AnotherEvent = {
   aggregateId: string
   eventType: 'my-event'
   timestamp: number
+  isAggregateCreationEvent: true
 }
 
 type Events = MyEvent | MyOtherEvent | AnotherEvent
@@ -68,6 +71,7 @@ test('PouchDB event store', async (t) => {
     aggregateId: 'my-aggregate-id',
     aggregateType: 'my-aggregate',
     eventType: 'my-event',
+    isAggregateCreationEvent: true,
   } as const
 
   const event2 = {
@@ -76,6 +80,7 @@ test('PouchDB event store', async (t) => {
     aggregateId: 'my-aggregate-id',
     aggregateType: 'my-other-aggregate',
     eventType: 'my-event',
+    isAggregateCreationEvent: true,
   } as const
 
   const event3 = {
@@ -84,6 +89,7 @@ test('PouchDB event store', async (t) => {
     aggregateId: 'my-aggregate-id',
     aggregateType: 'my-aggregate',
     eventType: 'my-other-event',
+    isAggregateCreationEvent: false,
   } as const
 
   const event4 = {
@@ -92,6 +98,7 @@ test('PouchDB event store', async (t) => {
     aggregateId: 'my-aggregate-id',
     aggregateType: 'my-aggregate',
     eventType: 'my-event',
+    isAggregateCreationEvent: true,
   } as const
 
   const event5 = {
@@ -100,6 +107,7 @@ test('PouchDB event store', async (t) => {
     aggregateId: 'my-aggregate-id',
     aggregateType: 'my-aggregate',
     eventType: 'my-event',
+    isAggregateCreationEvent: true,
   } as const
 
   const event6 = {
@@ -108,6 +116,7 @@ test('PouchDB event store', async (t) => {
     aggregateId: 'my-other-aggregate-id',
     aggregateType: 'my-other-aggregate',
     eventType: 'my-event',
+    isAggregateCreationEvent: true,
   } as const
 
   isRightMatching(await es.storeEvent(event1), (v) => t.deepEqual(v, event1))
@@ -156,6 +165,7 @@ test('PouchDB reactive event store - getEventsForAggregate$', async (t) => {
     aggregateId: 'my-aggregate-id',
     aggregateType: 'my-aggregate',
     eventType: 'my-event',
+    isAggregateCreationEvent: true,
   } as const)
 
   // Our observable should see the event
@@ -185,6 +195,7 @@ test('PouchDB reactive event store - getEventsForAggregates$', async (t) => {
     aggregateId: 'my-aggregate-id',
     aggregateType: 'my-aggregate',
     eventType: 'my-event',
+    isAggregateCreationEvent: true,
   } as const)
 
   // Our observable should see the event

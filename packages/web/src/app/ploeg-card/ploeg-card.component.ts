@@ -1,4 +1,4 @@
-import { Component, Inject, Input, OnInit } from '@angular/core'
+import { Component, Inject, Input } from '@angular/core'
 import { CommandService, Ploeg } from '@toye.io/field-journal-core'
 import { COMMAND_SERVICE_TOKEN } from '../services/tokens'
 
