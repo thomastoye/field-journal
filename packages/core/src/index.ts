@@ -23,6 +23,7 @@ import {
 import { map, Observable } from 'rxjs'
 import {
   HernoemStandplaatsCommand,
+  OmschrijfStandplaatsCommand,
   RegisteerStandplaatsCommand,
   Standplaats,
   StandplaatsAangemaaktEvent,
@@ -226,6 +227,24 @@ export type CommandService = {
   ): Promise<E.Either<EventStoreLeft | CommandValidationLeft, { id: string }>>
 
   hernoemPloeg(command: HernoemPloegCommand): Promise<E.Either<EventStoreLeft, null>>
+
+  registreerStandplaats(
+    command: RegisteerStandplaatsCommand,
+  ): Promise<E.Either<EventStoreLeft, null>>
+
+  hernoemStandplaats(command: HernoemStandplaatsCommand): Promise<E.Either<EventStoreLeft, null>>
+
+  omschrijfStandplaats(
+    command: OmschrijfStandplaatsCommand,
+  ): Promise<E.Either<EventStoreLeft, null>>
+
+  wijzigStandplaatsLocatie(
+    command: WijzigStandplaatsLocatieCommand,
+  ): Promise<E.Either<EventStoreLeft, null>>
+
+  wisStandplaatsLocatie(
+    command: WisStandplaatsLocatieCommand,
+  ): Promise<E.Either<EventStoreLeft, null>>
 }
 
 export class PouchDBCommandService implements CommandService {
@@ -341,7 +360,6 @@ export class PouchDBCommandService implements CommandService {
       timestamp: command.timestamp,
       eventType: 'standplaats-aangemaakt',
       standplaatsNaam: command.standplaatsNaam,
-      standplaatsOmschrijving: command.standplaatsOmschrijving,
       isAggregateCreationEvent: true,
     })
 
@@ -424,6 +442,31 @@ export class PouchDBCommandService implements CommandService {
       timestamp: command.timestamp,
       eventType: 'standplaats-locatie-gewijzigd',
       locatie: undefined,
+      isAggregateCreationEvent: false,
+    })
+
+    return F.pipe(
+      putResult,
+      E.map(() => null),
+    )
+  }
+
+  async omschrijfStandplaats(
+    command: OmschrijfStandplaatsCommand,
+  ): Promise<E.Either<EventStoreLeft, null>> {
+    const standplaats = await this.#queryService.queryPloeg(command.standplaatsId)
+
+    if (E.isLeft(standplaats)) {
+      return standplaats
+    }
+
+    const putResult = await this.#es.storeEvent({
+      aggregateType: 'standplaats',
+      eventId: command.eventId,
+      aggregateId: command.standplaatsId,
+      timestamp: command.timestamp,
+      eventType: 'standplaats-omschreven',
+      standplaatsOmschrijving: command.standplaatsOmschrijving,
       isAggregateCreationEvent: false,
     })
 

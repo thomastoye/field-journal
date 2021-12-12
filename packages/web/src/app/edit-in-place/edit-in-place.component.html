@@ -1,4 +1,7 @@
-<span *ngIf="!editing">{{ text }}</span>
+<span *ngIf="!editing && text != null" (dblclick)="editing = true">{{ text }}</span>
+<em *ngIf="!editing && text == null && ifTextIsNull != null" (dblclick)="editing = true">{{
+  ifTextIsNull
+}}</em>
 <button
   class="edit-in-place-start-editing"
   mat-icon-button

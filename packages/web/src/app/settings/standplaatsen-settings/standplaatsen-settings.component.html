@@ -1,1 +1,15 @@
-<p>standplaatsen-settings works!</p>
+<button mat-button (click)="nieuweStandplaats()">NIEUWE STANDPLAATS</button>
+
+<div *ngIf="standplaatsen$ | async as standplaatsenEither">
+  <div *ifRight="standplaatsenEither; else eLeftTemplateStandplaatsen; let standplaatsen">
+    <app-standplaatsen-card
+      style="margin: 30px; display: block"
+      *ngFor="let standplaats of standplaatsen"
+      [standplaats]="standplaats"
+    ></app-standplaatsen-card>
+  </div>
+
+  <ng-template #eLeftTemplateStandplaatsen let-l>
+    {{ l | json }}
+  </ng-template>
+</div>

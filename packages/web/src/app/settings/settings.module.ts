@@ -11,6 +11,9 @@ import { MatCardModule } from '@angular/material/card'
 import { MatButtonModule } from '@angular/material/button'
 import { StandplaatsenSettingsComponent } from './standplaatsen-settings/standplaatsen-settings.component'
 import { RouterModule, Routes } from '@angular/router'
+import { NgxFpTsModule } from 'ngx-fp-ts'
+import { StandplaatsenCardComponent } from './standplaatsen-card/standplaatsen-card.component'
+import { EditInPlaceModule } from '../edit-in-place/edit-in-place.module'
 
 const routes: Routes = [
   {
@@ -26,7 +29,7 @@ const routes: Routes = [
 ]
 
 @NgModule({
-  declarations: [SettingsComponent, StandplaatsenSettingsComponent],
+  declarations: [SettingsComponent, StandplaatsenSettingsComponent, StandplaatsenCardComponent],
   imports: [
     RouterModule,
     CommonModule,
@@ -39,6 +42,8 @@ const routes: Routes = [
     MatSidenavModule,
     MatListModule,
     RouterModule.forChild(routes),
+    NgxFpTsModule,
+    EditInPlaceModule,
   ],
 })
 export class SettingsModule {}

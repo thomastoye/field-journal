@@ -24,7 +24,6 @@ import { PloegenComponent } from './ploegen/ploegen.component'
 import { PloegenPageComponent } from './ploegen-page/ploegen-page.component'
 import { BerichtenPageComponent } from './berichten-page/berichten-page.component'
 import { PloegCardComponent } from './ploeg-card/ploeg-card.component'
-import { EditInPlaceComponent } from './edit-in-place/edit-in-place.component'
 import { FormsModule } from '@angular/forms'
 import { A11yModule } from '@angular/cdk/a11y'
 import { PloegCardNewComponent } from './ploeg-card-new/ploeg-card-new.component'
@@ -37,6 +36,7 @@ import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatSidenavModule } from '@angular/material/sidenav'
 import { MatListModule } from '@angular/material/list'
 import { HttpClientModule } from '@angular/common/http'
+import { EditInPlaceModule } from './edit-in-place/edit-in-place.module'
 
 @NgModule({
   declarations: [
@@ -45,7 +45,6 @@ import { HttpClientModule } from '@angular/common/http'
     PloegenPageComponent,
     BerichtenPageComponent,
     PloegCardComponent,
-    EditInPlaceComponent,
     PloegCardNewComponent,
   ],
   imports: [
@@ -64,6 +63,7 @@ import { HttpClientModule } from '@angular/common/http'
     MatListModule,
     NgxFpTsModule,
     HttpClientModule,
+    EditInPlaceModule,
   ],
   providers: [
     {

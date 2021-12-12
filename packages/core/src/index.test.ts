@@ -154,7 +154,6 @@ test('Creating, modifying and querying standplaatsen', async (t) => {
     eventId: 'my-event-id-1',
     standplaatsId: 'hp-1',
     standplaatsNaam: 'Hulppost 1',
-    standplaatsOmschrijving: 'Achterkant HP1',
     timestamp: Date.now(),
   })
 
@@ -163,7 +162,6 @@ test('Creating, modifying and querying standplaatsen', async (t) => {
     eventId: 'my-event-id-2',
     standplaatsId: 'stationsstraat',
     standplaatsNaam: 'Hoek Stationsstraat',
-    standplaatsOmschrijving: 'Hoek Stationsstraat met Schoolstraat',
     timestamp: Date.now(),
   })
 

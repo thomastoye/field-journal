@@ -6,7 +6,6 @@ export type RegisteerStandplaatsCommand = {
 
   standplaatsId: string
   standplaatsNaam: string
-  standplaatsOmschrijving: string
   eventId: string
 }
 
@@ -16,6 +15,15 @@ export type HernoemStandplaatsCommand = {
 
   standplaatsId: string
   standplaatsNaam: string
+  eventId: string
+}
+
+export type OmschrijfStandplaatsCommand = {
+  commandName: 'omschrijf-standplaats'
+  timestamp: number
+
+  standplaatsId: string
+  standplaatsOmschrijving: string
   eventId: string
 }
 
@@ -44,8 +52,17 @@ export type StandplaatsAangemaaktEvent = {
   aggregateId: string
   timestamp: number
   standplaatsNaam: string
-  standplaatsOmschrijving: string
   isAggregateCreationEvent: true
+}
+
+export type StandplaatsOmschrevenEvent = {
+  eventId: string
+  aggregateType: 'standplaats'
+  eventType: 'standplaats-omschreven'
+  aggregateId: string
+  timestamp: number
+  standplaatsOmschrijving: string
+  isAggregateCreationEvent: false
 }
 
 export type StandplaatsHernoemdEvent = {
@@ -75,14 +92,23 @@ export type StandplaatsEvent =
   | StandplaatsAangemaaktEvent
   | StandplaatsHernoemdEvent
   | StandplaatsLocatieGewijzigdEvent
+  | StandplaatsOmschrevenEvent
 
 export class Standplaats extends Aggregate<
   'standplaats',
   StandplaatsAangemaaktEvent,
-  { naam: string; omschrijving: string; locatie?: { lat: number; lng: number } }
+  { naam: string; omschrijving?: string; locatie?: { lat: number; lng: number } }
 > {
   get naam() {
     return this.data.naam
+  }
+
+  get omschrijving(): string | undefined {
+    return this.data.omschrijving
+  }
+
+  get locatie(): { lat: number; lng: number } | undefined {
+    return this.data.locatie
   }
 
   protected applyImpl(event: StandplaatsEvent) {
@@ -93,13 +119,15 @@ export class Standplaats extends Aggregate<
       case 'standplaats-locatie-gewijzigd':
         this.data.locatie = event.locatie
         return this
+      case 'standplaats-omschreven':
+        this.data.omschrijving = event.standplaatsOmschrijving
+        return this
     }
   }
 
   static createFromCreationEvent(event: StandplaatsAangemaaktEvent): Standplaats {
     return new Standplaats('standplaats', event.aggregateId, {
       naam: event.standplaatsNaam,
-      omschrijving: event.standplaatsOmschrijving,
     })
   }
 }
