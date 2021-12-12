@@ -12,6 +12,10 @@ const routes: Routes = [
     path: 'berichten',
     component: BerichtenPageComponent,
   },
+  {
+    path: 'instellingen',
+    loadChildren: () => import('./settings/settings.module').then((m) => m.SettingsModule),
+  },
 ]
 
 @NgModule({

@@ -1957,6 +1957,11 @@
     npmlog "^4.1.2"
     write-file-atomic "^3.0.3"
 
+"@mdi/angular-material@^6.5.95":
+  version "6.5.95"
+  resolved "https://registry.yarnpkg.com/@mdi/angular-material/-/angular-material-6.5.95.tgz#c819ca299065378d0c4dc058a729e5678dc77582"
+  integrity sha512-dmnE9VZPYQMW+MIc3qBuLpe2N7at9sEUH/wR8qnRSfbX1mbo7MlQnbrLRWV7KGbf0rHIgkwRtY4VwR/ED04VWw==
+
 "@ngtools/webpack@13.0.4":
   version "13.0.4"
   resolved "https://registry.yarnpkg.com/@ngtools/webpack/-/webpack-13.0.4.tgz#9389c95fdbefb48fe061a30d81aab2f83bbf2081"

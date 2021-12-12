@@ -1,8 +1,10 @@
 <mat-toolbar color="primary" class="mat-elevation-z6">
   <a mat-button routerLink="/">field-journal</a>
 
-  <a mat-button routerLink="/ploegen">Ploegen</a>
-  <a mat-button routerLink="/berichten">Berichten</a>
+  <a mat-button routerLink="/ploegen"><mat-icon svgIcon="account-group"></mat-icon> Ploegen</a>
+  <a mat-button routerLink="/ploegen"><mat-icon svgIcon="map"></mat-icon> Kaart</a>
+  <a mat-button routerLink="/berichten"><mat-icon svgIcon="forum"></mat-icon> Berichten</a>
+  <a mat-button routerLink="/instellingen"><mat-icon svgIcon="cog"></mat-icon> Instellingen</a>
 </mat-toolbar>
 
 <router-outlet></router-outlet>
