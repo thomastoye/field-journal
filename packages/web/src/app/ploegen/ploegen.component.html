@@ -1,9 +1,0 @@
-<div *ngIf="ploegen != null">
-  <button mat-raised-button (click)="nieuwePloeg()">NIEUWE PLOEG</button>
-
-  <app-ploeg-card-new></app-ploeg-card-new>
-
-  <span>Er zijn {{ ploegen.length }} ploegen</span>
-
-  <app-ploeg-card *ngFor="let ploeg of ploegen" [ploeg]="ploeg"></app-ploeg-card>
-</div>

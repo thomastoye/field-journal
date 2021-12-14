@@ -68,7 +68,7 @@ test('Creating and querying ploegen', async (t) => {
     t.true(O.isSome(p))
 
     if (O.isSome(p)) {
-      t.is(p.value.ploegNaam, 'Mijn Fietsploeg')
+      t.is(p.value.naam, 'Mijn Fietsploeg')
     }
   })
 })
@@ -182,9 +182,17 @@ test('Creating, modifying and querying standplaatsen', async (t) => {
     timestamp: Date.now(),
   })
 
+  await commandService.omschrijfStandplaats({
+    commandName: 'omschrijf-standplaats',
+    eventId: 'my-event-id-5',
+    standplaatsId: 'hp-1',
+    standplaatsOmschrijving: 'Achterkant HP1',
+    timestamp: Date.now(),
+  })
+
   await commandService.wijzigStandplaatsLocatie({
     commandName: 'wijzig-standplaats-locatie',
-    eventId: 'my-event-id-5',
+    eventId: 'my-event-id-6',
     standplaatsId: 'stationsstraat',
     lat: 3.45,
     lng: 5.44,
@@ -193,8 +201,16 @@ test('Creating, modifying and querying standplaatsen', async (t) => {
 
   await commandService.wisStandplaatsLocatie({
     commandName: 'wis-standplaats-locatie',
-    eventId: 'my-event-id-6',
+    eventId: 'my-event-id-7',
     standplaatsId: 'hp-1',
+    timestamp: Date.now(),
+  })
+
+  await commandService.omschrijfStandplaats({
+    commandName: 'omschrijf-standplaats',
+    eventId: 'my-event-id-8',
+    standplaatsId: 'stationsstraat',
+    standplaatsOmschrijving: 'Hoek Stationsstraat met Schoolstraat',
     timestamp: Date.now(),
   })
 

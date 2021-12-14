@@ -15,7 +15,7 @@ export class SettingsComponent {
     {
       title: 'Ploegen',
       icon: 'account-group',
-      link: 'standplaatsen',
+      link: 'ploegen',
     },
     {
       title: 'DMR',

@@ -14,6 +14,8 @@ import { RouterModule, Routes } from '@angular/router'
 import { NgxFpTsModule } from 'ngx-fp-ts'
 import { StandplaatsenCardComponent } from './standplaatsen-card/standplaatsen-card.component'
 import { EditInPlaceModule } from '../edit-in-place/edit-in-place.module'
+import { PloegenCardComponent } from './ploegen-card/ploegen-card.component'
+import { PloegenSettingsComponent } from './ploegen-settings/ploegen-settings.component'
 
 const routes: Routes = [
   {
@@ -24,12 +26,22 @@ const routes: Routes = [
         path: 'standplaatsen',
         component: StandplaatsenSettingsComponent,
       },
+      {
+        path: 'ploegen',
+        component: PloegenSettingsComponent,
+      },
     ],
   },
 ]
 
 @NgModule({
-  declarations: [SettingsComponent, StandplaatsenSettingsComponent, StandplaatsenCardComponent],
+  declarations: [
+    SettingsComponent,
+    StandplaatsenSettingsComponent,
+    StandplaatsenCardComponent,
+    PloegenCardComponent,
+    PloegenSettingsComponent,
+  ],
   imports: [
     RouterModule,
     CommonModule,

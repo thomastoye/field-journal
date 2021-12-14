@@ -1,0 +1,26 @@
+<mat-card class="ploeg-card" *ngIf="ploeg; let s">
+  <mat-card-title
+    ><app-edit-in-place
+      [text]="s.naam"
+      placeholder="Bv. India 10"
+      label="Naam"
+      (changed)="hernoemPloeg(s.aggregateId, $event)"
+    ></app-edit-in-place
+  ></mat-card-title>
+  <mat-card-subtitle
+    ><app-edit-in-place
+      (changed)="omschrijfPloeg(s.aggregateId, $event)"
+      label="Omschrijving"
+      placeholder="Bv. Fietsploeg"
+      ifTextIsNull="Geen omschrijving"
+      [text]="s.omschrijving || null"
+    ></app-edit-in-place
+  ></mat-card-subtitle>
+  <mat-card-content>
+    <p>longText</p>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-button>LIKE</button>
+    <button mat-button>SHARE</button>
+  </mat-card-actions>
+</mat-card>

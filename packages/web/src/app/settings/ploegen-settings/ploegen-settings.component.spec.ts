@@ -1,21 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { TestingModule } from 'src/app/testing/testing.module'
 
-import { SettingsComponent } from './settings.component'
+import { PloegenSettingsComponent } from './ploegen-settings.component'
 
-describe('SettingsComponent', () => {
-  let component: SettingsComponent
-  let fixture: ComponentFixture<SettingsComponent>
+describe('PloegenSettingsComponent', () => {
+  let component: PloegenSettingsComponent
+  let fixture: ComponentFixture<PloegenSettingsComponent>
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SettingsComponent],
+      declarations: [PloegenSettingsComponent],
       imports: [TestingModule],
     }).compileComponents()
   })
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SettingsComponent)
+    fixture = TestBed.createComponent(PloegenSettingsComponent)
     component = fixture.componentInstance
     fixture.detectChanges()
   })

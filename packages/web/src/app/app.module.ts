@@ -20,13 +20,9 @@ import { PouchDBEventStore, ReactiveEventStore } from '@toye.io/field-journal-ev
 import PouchDB from 'pouchdb'
 import PouchDBFindPlugin from 'pouchdb-find'
 import { NgxFpTsModule } from 'ngx-fp-ts'
-import { PloegenComponent } from './ploegen/ploegen.component'
-import { PloegenPageComponent } from './ploegen-page/ploegen-page.component'
 import { BerichtenPageComponent } from './berichten-page/berichten-page.component'
-import { PloegCardComponent } from './ploeg-card/ploeg-card.component'
 import { FormsModule } from '@angular/forms'
 import { A11yModule } from '@angular/cdk/a11y'
-import { PloegCardNewComponent } from './ploeg-card-new/ploeg-card-new.component'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatFormFieldModule } from '@angular/material/form-field'
@@ -39,14 +35,7 @@ import { HttpClientModule } from '@angular/common/http'
 import { EditInPlaceModule } from './edit-in-place/edit-in-place.module'
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    PloegenComponent,
-    PloegenPageComponent,
-    BerichtenPageComponent,
-    PloegCardComponent,
-    PloegCardNewComponent,
-  ],
+  declarations: [AppComponent, BerichtenPageComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,

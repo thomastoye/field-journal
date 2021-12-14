@@ -1,21 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
-import { TestingModule } from '../testing/testing.module'
+import { TestingModule } from 'src/app/testing/testing.module'
 
-import { PloegCardNewComponent } from './ploeg-card-new.component'
+import { PloegenCardComponent } from './ploegen-card.component'
 
-describe('PloegCardNewComponent', () => {
-  let component: PloegCardNewComponent
-  let fixture: ComponentFixture<PloegCardNewComponent>
+describe('PloegenCardComponent', () => {
+  let component: PloegenCardComponent
+  let fixture: ComponentFixture<PloegenCardComponent>
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PloegCardNewComponent],
+      declarations: [PloegenCardComponent],
       imports: [TestingModule],
     }).compileComponents()
   })
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PloegCardNewComponent)
+    fixture = TestBed.createComponent(PloegenCardComponent)
     component = fixture.componentInstance
     fixture.detectChanges()
   })

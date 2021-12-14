@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
+import { TestingModule } from 'src/app/testing/testing.module'
 
 import { StandplaatsenSettingsComponent } from './standplaatsen-settings.component'
 
@@ -9,6 +10,7 @@ describe('StandplaatsenSettingsComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [StandplaatsenSettingsComponent],
+      imports: [TestingModule],
     }).compileComponents()
   })
 

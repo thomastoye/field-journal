@@ -18,6 +18,15 @@ export type HernoemPloegCommand = {
   eventId: string
 }
 
+export type OmschrijfPloegCommand = {
+  commandName: 'omschrijf-ploeg'
+  timestamp: number
+
+  ploegId: string
+  ploegOmschrijving: string
+  eventId: string
+}
+
 export type PloegAangemaaktEvent = {
   eventId: string
   aggregateType: 'ploeg'
@@ -38,17 +47,38 @@ export type PloegHernoemdEvent = {
   isAggregateCreationEvent: false
 }
 
-export type PloegEvent = PloegAangemaaktEvent | PloegHernoemdEvent
+export type PloegOmschrevenEvent = {
+  eventId: string
+  aggregateType: 'ploeg'
+  aggregateId: string
+  eventType: 'ploeg-omschreven'
+  timestamp: number
+  ploegOmschrijving: string
+  isAggregateCreationEvent: false
+}
 
-export class Ploeg extends Aggregate<'ploeg', PloegAangemaaktEvent, { ploegNaam: string }> {
-  get ploegNaam() {
+export type PloegEvent = PloegAangemaaktEvent | PloegHernoemdEvent | PloegOmschrevenEvent
+
+export class Ploeg extends Aggregate<
+  'ploeg',
+  PloegAangemaaktEvent,
+  { ploegNaam: string; omschrijving?: string }
+> {
+  get naam() {
     return this.data.ploegNaam
+  }
+
+  get omschrijving() {
+    return this.data.omschrijving
   }
 
   protected applyImpl(event: PloegEvent) {
     switch (event.eventType) {
       case 'ploeg-hernoemd':
         this.data.ploegNaam = event.ploegNaam
+        return this
+      case 'ploeg-omschreven':
+        this.data.omschrijving = event.ploegOmschrijving
         return this
     }
   }

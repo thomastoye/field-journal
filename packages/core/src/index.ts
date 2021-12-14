@@ -8,6 +8,7 @@ import {
 } from './aggregates/chat-bericht.js'
 import {
   HernoemPloegCommand,
+  OmschrijfPloegCommand,
   Ploeg,
   PloegAangemaaktEvent,
   PloegEvent,
@@ -31,6 +32,8 @@ import {
   WijzigStandplaatsLocatieCommand,
   WisStandplaatsLocatieCommand,
 } from './aggregates/standplaats.js'
+export * from './ploeg-status.js'
+export * from './ploeg-type.js'
 
 export { Ploeg, ChatBericht, Standplaats }
 
@@ -238,6 +241,8 @@ export type CommandService = {
     command: OmschrijfStandplaatsCommand,
   ): Promise<E.Either<EventStoreLeft, null>>
 
+  omschrijfPloeg(command: OmschrijfPloegCommand): Promise<E.Either<EventStoreLeft, null>>
+
   wijzigStandplaatsLocatie(
     command: WijzigStandplaatsLocatieCommand,
   ): Promise<E.Either<EventStoreLeft, null>>
@@ -345,13 +350,7 @@ export class PouchDBCommandService implements CommandService {
   async registreerStandplaats(
     command: RegisteerStandplaatsCommand,
   ): Promise<E.Either<EventStoreLeft, null>> {
-    const standplaats = await this.#queryService.queryPloeg(command.standplaatsId)
-
     // TODO validation
-
-    if (E.isLeft(standplaats)) {
-      return standplaats
-    }
 
     const putResult = await this.#es.storeEvent({
       aggregateType: 'standplaats',
@@ -372,7 +371,7 @@ export class PouchDBCommandService implements CommandService {
   async hernoemStandplaats(
     command: HernoemStandplaatsCommand,
   ): Promise<E.Either<EventStoreLeft, null>> {
-    const standplaats = await this.#queryService.queryPloeg(command.standplaatsId)
+    const standplaats = await this.#queryService.queryStandplaats(command.standplaatsId)
 
     // TODO validation
 
@@ -399,7 +398,7 @@ export class PouchDBCommandService implements CommandService {
   async wijzigStandplaatsLocatie(
     command: WijzigStandplaatsLocatieCommand,
   ): Promise<E.Either<EventStoreLeft, null>> {
-    const standplaats = await this.#queryService.queryPloeg(command.standplaatsId)
+    const standplaats = await this.#queryService.queryStandplaats(command.standplaatsId)
 
     // TODO validation
 
@@ -429,7 +428,7 @@ export class PouchDBCommandService implements CommandService {
   async wisStandplaatsLocatie(
     command: WisStandplaatsLocatieCommand,
   ): Promise<E.Either<EventStoreLeft, null>> {
-    const standplaats = await this.#queryService.queryPloeg(command.standplaatsId)
+    const standplaats = await this.#queryService.queryStandplaats(command.standplaatsId)
 
     if (E.isLeft(standplaats)) {
       return standplaats
@@ -454,7 +453,7 @@ export class PouchDBCommandService implements CommandService {
   async omschrijfStandplaats(
     command: OmschrijfStandplaatsCommand,
   ): Promise<E.Either<EventStoreLeft, null>> {
-    const standplaats = await this.#queryService.queryPloeg(command.standplaatsId)
+    const standplaats = await this.#queryService.queryStandplaats(command.standplaatsId)
 
     if (E.isLeft(standplaats)) {
       return standplaats
@@ -467,6 +466,29 @@ export class PouchDBCommandService implements CommandService {
       timestamp: command.timestamp,
       eventType: 'standplaats-omschreven',
       standplaatsOmschrijving: command.standplaatsOmschrijving,
+      isAggregateCreationEvent: false,
+    })
+
+    return F.pipe(
+      putResult,
+      E.map(() => null),
+    )
+  }
+
+  async omschrijfPloeg(command: OmschrijfPloegCommand): Promise<E.Either<EventStoreLeft, null>> {
+    const ploeg = await this.#queryService.queryPloeg(command.ploegId)
+
+    if (E.isLeft(ploeg)) {
+      return ploeg
+    }
+
+    const putResult = await this.#es.storeEvent({
+      aggregateType: 'ploeg',
+      eventId: command.eventId,
+      aggregateId: command.ploegId,
+      timestamp: command.timestamp,
+      eventType: 'ploeg-omschreven',
+      ploegOmschrijving: command.ploegOmschrijving,
       isAggregateCreationEvent: false,
     })
 

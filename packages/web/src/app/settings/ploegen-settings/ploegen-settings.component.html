@@ -1,6 +1,12 @@
+<button mat-button (click)="nieuwePloeg()">NIEUWE PLOEG</button>
+
 <div *ngIf="ploegen$ | async as ploegenEither">
   <div *ifRight="ploegenEither; else eLeftTemplatePloegen; let ploegen">
-    <app-ploegen [ploegen]="ploegen"></app-ploegen>
+    <app-ploegen-card
+      style="margin: 30px; display: block"
+      *ngFor="let ploeg of ploegen"
+      [ploeg]="ploeg"
+    ></app-ploegen-card>
   </div>
 
   <ng-template #eLeftTemplatePloegen let-l>
